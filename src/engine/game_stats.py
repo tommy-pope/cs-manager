@@ -1,6 +1,7 @@
 from ..data.team.team import Team
 
-class GameStats():
+
+class GameStats:
     def __init__(self) -> None:
         self.team_one_stats = {}
         self.team_two_stats = {}

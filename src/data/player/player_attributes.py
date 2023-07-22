@@ -14,3 +14,5 @@ class PlayerAttributes:
         self.positioning = positioning
         self.clutch = clutch
         self.consistency = consistency
+
+        self.is_awper = False
