@@ -1,11 +1,11 @@
 from .data.player.player import *
-from .data.team.team import Team
+from .engine.game_engine import GameEngine, Team
+from .data.team.team_information import TeamInformation
 
 
 def main():
-    team_one = Team("Team One")
-    team_two = Team("Team Two")
+    team_one = Team(TeamInformation("Team One"))
+    team_two = Team(TeamInformation("Team One"))
 
-    for i in range(5):
-        info = PlayerInformation(f"Player{i}")
-        attributes = PlayerAttributes()
+    engine = GameEngine()
+    engine.play_game(team_one, team_two)

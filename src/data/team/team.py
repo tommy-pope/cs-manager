@@ -1,10 +1,5 @@
-from ..player.player import Player
-
+from .team_information import TeamInformation
 
 class Team:
-    def __init__(self, name: str) -> None:
-        self.name = name
-        self.players = []
-
-    def add_player(self, player: Player):
-        self.players.append(player)
+    def __init__(self, team_information: TeamInformation) -> None:
+        self.info = team_information

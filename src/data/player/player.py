@@ -1,5 +1,5 @@
-from player_attributes import PlayerAttributes
-from player_information import PlayerInformation
+from .player_attributes import PlayerAttributes
+from .player_information import PlayerInformation
 
 
 class Player:
