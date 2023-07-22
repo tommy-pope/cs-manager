@@ -1,6 +1,7 @@
 from ..player.player import Player
 
-class Team():
+
+class Team:
     def __init__(self, name: str) -> None:
         self.name = name
         self.players = []
