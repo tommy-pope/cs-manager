@@ -9,10 +9,17 @@ def main():
 
     for i in range(10):
         if i < 5:
-            player = Player(PlayerInformation(i+1, f"Player{i+1}"), PlayerAttributes())
+            if i == 0:
+                player = Player(PlayerInformation(i+1, f"Player{i+1}"), PlayerAttributes(is_awper=True))
+            else:
+                player = Player(PlayerInformation(i+1, f"Player{i+1}"), PlayerAttributes())
+
             team_one.info.players.append(player)
         else:
-            player = Player(PlayerInformation(i+1, f"Player{i+1}"), PlayerAttributes())
+            if i == 5:
+                player = Player(PlayerInformation(i+1, f"Player{i+1}"), PlayerAttributes(is_awper=True))
+            else:
+                player = Player(PlayerInformation(i+1, f"Player{i+1}"), PlayerAttributes())
             team_two.info.players.append(player)
 
     engine = GameEngine(debug=True)

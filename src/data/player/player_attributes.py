@@ -7,6 +7,7 @@ class PlayerAttributes:
         positioning: float = 0.0,
         clutch: float = 0.0,
         consistency: float = 0.0,
+        is_awper: bool = False,
     ) -> None:
         self.rifle = rifle
         self.pistol = pistol
@@ -15,4 +16,4 @@ class PlayerAttributes:
         self.clutch = clutch
         self.consistency = consistency
 
-        self.is_awper = False
+        self.is_awper = is_awper
