@@ -303,6 +303,9 @@ class GameEngine:
         print()
         print(f"Team Two won with {team_two_players_alive} alive.")
 
+
+    # note when working again, starting back on the calculate_encounter_odds with stats now
+
     def simulate_round(self) -> None:
         team_one_players_alive = 5
         team_two_players_alive = 5
