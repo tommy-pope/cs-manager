@@ -49,8 +49,31 @@ class GameEngine:
         self.calculate_postgame_stats()
 
     def calculate_postgame_stats(self) -> None:
+        rounds = self.game.game_information.current_round
+
         for player in self.game.team_one.info.players:
-            
+            self.game.game_stats.team_one_stats[player.info.player_id]["fpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["kills"]/rounds, 2)
+            self.game.game_stats.team_one_stats[player.info.player_id]["fbpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["first_bloods"]/rounds, 2)
+            self.game.game_stats.team_one_stats[player.info.player_id]["cpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["clutches"]/rounds, 2)
+            self.game.game_stats.team_one_stats[player.info.player_id]["adr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["damage"]/rounds, 2)
+
+            self.game.game_stats.team_one_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player)
+
+        for player in self.game.team_two.info.players:
+            self.game.game_stats.team_two_stats[player.info.player_id]["fpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["kills"]/rounds, 2)
+            self.game.game_stats.team_two_stats[player.info.player_id]["fbpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["first_bloods"]/rounds, 2)
+            self.game.game_stats.team_two_stats[player.info.player_id]["cpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["clutches"]/rounds, 2)
+            self.game.game_stats.team_two_stats[player.info.player_id]["adr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["damage"]/rounds, 2)
+
+            self.game.game_stats.team_two_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player)
+        for item in self.game.game_stats.team_one_stats.items():
+            print(item)
+
+        for item in self.game.game_stats.team_two_stats.items():
+            print(item)
+
+    def calculate_player_rating(self, player: Player) -> float:
+        
 
 
 
