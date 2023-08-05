@@ -8,7 +8,7 @@ class GameInformation:
         self.last_round_winner = 0
 
         self.is_overtime = False
-        self.rounds_to_reach = 0
+        self.rounds_to_reach = 16
 
         self.team_one_score = 0
         self.team_two_score = 0

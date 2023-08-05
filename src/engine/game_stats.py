@@ -23,7 +23,7 @@ class GameStats:
         }
 
         for player in team_one.info.players:
-            self.team_one_stats[player.info.player_id] = blank_stats
+            self.team_one_stats[player.info.player_id] = blank_stats.copy()
 
         for player in team_two.info.players:
-            self.team_two_stats[player.info.player_id] = blank_stats
+            self.team_two_stats[player.info.player_id] = blank_stats.copy()
