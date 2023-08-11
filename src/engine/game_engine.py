@@ -53,28 +53,59 @@ class GameEngine:
 
         for player in self.game.team_one.info.players:
             self.game.game_stats.team_one_stats[player.info.player_id]["fpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["kills"]/rounds, 2)
+            self.game.game_stats.team_one_stats[player.info.player_id]["apr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["assists"]/rounds, 2)
             self.game.game_stats.team_one_stats[player.info.player_id]["fbpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["first_bloods"]/rounds, 2)
             self.game.game_stats.team_one_stats[player.info.player_id]["cpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["clutches"]/rounds, 2)
+            self.game.game_stats.team_one_stats[player.info.player_id]["mkpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["multikills"]/rounds, 2)
             self.game.game_stats.team_one_stats[player.info.player_id]["adr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["damage"]/rounds, 2)
 
-            self.game.game_stats.team_one_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player)
+            self.game.game_stats.team_one_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player, self.game.game_stats.team_one_stats)
 
         for player in self.game.team_two.info.players:
             self.game.game_stats.team_two_stats[player.info.player_id]["fpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["kills"]/rounds, 2)
+            self.game.game_stats.team_two_stats[player.info.player_id]["apr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["assists"]/rounds, 2)
             self.game.game_stats.team_two_stats[player.info.player_id]["fbpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["first_bloods"]/rounds, 2)
             self.game.game_stats.team_two_stats[player.info.player_id]["cpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["clutches"]/rounds, 2)
+            self.game.game_stats.team_two_stats[player.info.player_id]["mkpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["multikills"]/rounds, 2)
             self.game.game_stats.team_two_stats[player.info.player_id]["adr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["damage"]/rounds, 2)
 
-            self.game.game_stats.team_two_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player)
+            self.game.game_stats.team_two_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player, self.game.game_stats.team_two_stats)
+
+            
         for item in self.game.game_stats.team_one_stats.items():
             print(item)
 
         for item in self.game.game_stats.team_two_stats.items():
             print(item)
 
-    def calculate_player_rating(self, player: Player) -> float:
-        
+    def calculate_player_rating(self, player: Player, stats: GameStats) -> float:
+        fpr_adj = .3
+        apr_adj = .9
+        fbpr_adj = .9
 
+        cpr_adj = .9
+        cpr_scale = 5
+
+        mkpr_adj = .9
+
+        adr_adj = 35
+        adr_scale = 100
+
+        fpr = stats[player.info.player_id]["fpr"] + fpr_adj
+        apr = stats[player.info.player_id]["apr"] + apr_adj
+        fbpr = stats[player.info.player_id]["fbpr"] + fbpr_adj
+        cpr = (stats[player.info.player_id]["cpr"] * cpr_scale) + cpr_adj
+        mkpr = stats[player.info.player_id]["mkpr"] + mkpr_adj
+        adr = (stats[player.info.player_id]["adr"] + adr_adj) / adr_scale
+
+        fpr_weight = .25
+        apr_weight = .15
+        fbpr_weight = .2
+        cpr_weight = .1
+        mkpr_weight = .1
+        adr_weight = .2
+        
+        return round((fpr * fpr_weight) + (apr * apr_weight) + (fbpr * fbpr_weight) + (cpr * cpr_weight) + (mkpr * mkpr_weight) + (adr * adr_weight), 2)
 
 
     def repopulate_alive_lists(self) -> None:
@@ -82,11 +113,13 @@ class GameEngine:
             player.hp = 100
             player.alive = True
             player.hit_by = []
+            player.kills_in_round = 0
 
         for player in self.game.game_information.team_two_alive:
             player.hp = 100
             player.alive = True
             player.hit_by = []
+            player.kills_in_round = 0
 
     def update_economy(self) -> None:
         # if not first round, or halftime
@@ -450,6 +483,10 @@ class GameEngine:
                     team_two_players_alive -=1
 
                     self.game.game_stats.team_one_stats[player_one.info.player_id]["kills"] += 1
+                    player_one.kills_in_round += 1
+
+                    if player_one.kills_in_round == 2:
+                        self.game.game_stats.team_one_stats[player_one.info.player_id]["multikills"] += 1
 
                     if team_two_players_alive == 4:
                         self.game.game_stats.team_one_stats[player_one.info.player_id]["first_bloods"] += 1
@@ -475,6 +512,10 @@ class GameEngine:
                     team_one_players_alive -= 1
 
                     self.game.game_stats.team_two_stats[player_two.info.player_id]["kills"] += 1
+                    player_two.kills_in_round += 1
+
+                    if player_two.kills_in_round == 2:
+                        self.game.game_stats.team_two_stats[player_two.info.player_id]["multikills"] += 1
 
                     if team_one_players_alive == 4:
                         self.game.game_stats.team_two_stats[player_two.info.player_id]["first_bloods"] += 1

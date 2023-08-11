@@ -16,8 +16,10 @@ class GameStats:
             "multikills": 0,
             "damage": 0,
             "fpr": 0,
+            "apr": 0,
             "fbpr": 0,
             "cpr": 0,
+            "mkpr": 0,
             "adr": 0,
             "rating": 0,
         }
