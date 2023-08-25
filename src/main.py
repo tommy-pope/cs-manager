@@ -1,9 +1,13 @@
 from .data.player.player import *
 from .engine.game_engine import GameEngine, Team
 from .data.team.team_information import TeamInformation
+from .gamefuncs.db import GameDB
 
 
 def main():
+    db = GameDB()
+    db.setup_game()
+
     team_one = Team(TeamInformation("Team One"))
     team_two = Team(TeamInformation("Team One"))
 

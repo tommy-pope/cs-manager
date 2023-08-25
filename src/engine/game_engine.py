@@ -71,12 +71,12 @@ class GameEngine:
 
             self.game.game_stats.team_two_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player, self.game.game_stats.team_two_stats)
 
-            
-        for item in self.game.game_stats.team_one_stats.items():
-            print(item)
+        if self.debug:
+            for item in self.game.game_stats.team_one_stats.items():
+                print(item)
 
-        for item in self.game.game_stats.team_two_stats.items():
-            print(item)
+            for item in self.game.game_stats.team_two_stats.items():
+                print(item)
 
     def calculate_player_rating(self, player: Player, stats: GameStats) -> float:
         fpr_adj = .3
@@ -106,7 +106,6 @@ class GameEngine:
         adr_weight = .2
         
         return round((fpr * fpr_weight) + (apr * apr_weight) + (fbpr * fbpr_weight) + (cpr * cpr_weight) + (mkpr * mkpr_weight) + (adr * adr_weight), 2)
-
 
     def repopulate_alive_lists(self) -> None:
         for player in self.game.game_information.team_one_alive:
