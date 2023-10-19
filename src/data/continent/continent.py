@@ -4,7 +4,7 @@ class Continent:
         self.sname = short_name
         self.rep = continent_rep
         self.nations = {}
-        self.rankings = {}
+        self.teams = []
 
         self.nation_distribution = {}
     
@@ -19,3 +19,6 @@ class Continent:
 
         for idx in range(len(percentages)):
             self.nation_distribution[nations[idx].sname] = percentages[idx]
+    
+    def calculate_team_rankings(self) -> None:
+        self.teams.sort(key=lambda x: x.info.elo, reverse=True)
