@@ -5,7 +5,7 @@ from ..data.player.player import Player, PlayerInformation, PlayerAttributes
 from ..data.team.team import Team, TeamInformation
 from ..data.event.event import Event
 
-from .utility import add_to_date, subtract_from_date, find_team_in_event
+from .utility import add_to_date, subtract_from_date, check_date_equality, find_team_in_event
 
 import csv
 import random
@@ -21,8 +21,14 @@ class GameDB:
         self.players = []
         self.events = []
         self.matches = []
+        self.results = []
+
+        self.past_events = []
 
         self.date = [1, 1, 2023]
+
+
+        self.games_generated = False
     
     def setup_game(self) -> None:
         self.generate_continents()
@@ -78,7 +84,6 @@ class GameDB:
         }
 
         for continent in self.continents:
-            print(self.continents[continent].nation_distribution)
             num_teams = teams_per_cont[continent]
 
             cont_rep = self.continents[continent].rep - 10
@@ -86,8 +91,6 @@ class GameDB:
         
             cont_team_reps = [random.gauss(cont_rep, biased_rep) for _ in range(num_teams)]
             cont_team_reps = [round(max(30, min(100, x)), 2) for x in cont_team_reps]
-
-            print(f"{continent}: {cont_team_reps}")
 
             for team in range(num_teams):
                 self.generate_team(self.continents[continent], cont_team_reps[team])
@@ -205,7 +208,38 @@ class GameDB:
                     available_teams.append(team)
 
             event = Event(event_id, event_name, event_rep, start_date, add_to_date(start_date, days=1), "qual", available_teams, continent, [parent_event])
+            event.generate_matches(self)
             self.events.append(event)
 
-    def rank_teams(self):
+    def advance(self) -> None:
+        self.check_for_matches()
+        self.generate_event_rounds()
+
+        while self.games_generated:
+            self.check_for_matches()
+            self.generate_event_rounds()
+
+        self.date = add_to_date(self.date, days=1)
+
+    def check_for_matches(self) -> None:
+        i = 0
+
+        while i < len(self.matches):
+            match = self.matches[i]
+
+            # match day is today
+            if check_date_equality(self.date, match.date):
+                match.event.play_match(self, match)
+                i -= 1
+
+            i += 1
+        
+        self.games_generated = False
+        
+    def generate_event_rounds(self) -> None:
+        for event in self.events:
+            if len(event.results) > 0 and check_date_equality(self.date, event.results[-1].date):
+                event.generate_matches(self)
+
+    def rank_teams(self) -> None:
         self.teams.sort(key=lambda x: x.info.elo, reverse=True)

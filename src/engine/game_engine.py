@@ -312,14 +312,15 @@ class GameEngine:
 
         self.repopulate_alive_lists()
         self.update_economy()
-
-        print(f"Team One Money: {self.game.game_information.team_one_money}")
-        print(f"Team Two Money: {self.game.game_information.team_two_money}")
+        if self.debug:
+            print(f"Team One Money: {self.game.game_information.team_one_money}")
+            print(f"Team Two Money: {self.game.game_information.team_two_money}")
 
         self.make_purchases()
 
-        print(f"Team One Money: {self.game.game_information.team_one_money}")
-        print(f"Team Two Money: {self.game.game_information.team_two_money}")
+        if self.debug:
+            print(f"Team One Money: {self.game.game_information.team_one_money}")
+            print(f"Team Two Money: {self.game.game_information.team_two_money}")
 
     def select_team_one_player(self) -> Player:
         valid_players = [player for player in self.game.game_information.team_one_alive if player.alive == True]
@@ -435,6 +436,10 @@ class GameEngine:
         self.game.game_information.team_one_surviving = team_one_players_alive
         self.game.game_information.team_two_surviving = 0
 
+        if self.debug:
+            print()
+            print(f"Team One won with {team_one_players_alive} alive.")
+
     def team_two_round_win(self, team_two_players_alive: int) -> None:
         self.game.game_information.team_two_score += 1
         self.game.game_information.last_round_winner = 2
@@ -442,8 +447,9 @@ class GameEngine:
         self.game.game_information.team_two_surviving = team_two_players_alive
         self.game.game_information.team_one_surviving = 0
 
-        print()
-        print(f"Team Two won with {team_two_players_alive} alive.")
+        if self.debug:
+            print()
+            print(f"Team Two won with {team_two_players_alive} alive.")
 
     def on_player_death(self, dead_player: Player, team: str) -> None:
         dead_player.hp = 0
