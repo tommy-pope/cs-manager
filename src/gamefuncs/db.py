@@ -150,7 +150,7 @@ class GameDB:
                 players.append(player)
                 self.players.append(player)
 
-        team_info = TeamInformation(len(self.teams), team_name, team_rep, players)
+        team_info = TeamInformation(len(self.teams), team_name, team_rep, players, continent)
         team = Team(team_info)
 
         self.teams.append(team)

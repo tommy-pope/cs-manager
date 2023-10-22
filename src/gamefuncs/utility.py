@@ -2,11 +2,10 @@ from math import ceil
 
 
 def find_closest_square(number: int) -> int:
-    found = False
     power = 1
     diff = 999
 
-    while not found:
+    while True:
         squared = pow(2, power)
         new_diff = abs(squared - number)
 
