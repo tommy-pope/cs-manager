@@ -8,6 +8,7 @@ import customtkinter as ctk
 
 def main():
     db = GameDB()
+    db.setup_game()
 
     app = UI(db)
     app.create_application()
