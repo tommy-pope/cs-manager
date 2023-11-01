@@ -8,6 +8,7 @@ packages = [{include = "cs_manager"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+customtkinter = "^5.2.1"
 
 
 [tool.poetry.group.dev.dependencies]

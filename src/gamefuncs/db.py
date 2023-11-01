@@ -211,7 +211,7 @@ class GameDB:
             event.generate_matches(self)
             self.events.append(event)
 
-    def advance(self) -> None:
+    def advance(self, ui) -> None:
         self.check_for_matches()
         self.generate_event_rounds()
 
@@ -220,6 +220,8 @@ class GameDB:
             self.generate_event_rounds()
 
         self.date = add_to_date(self.date, days=1)
+        ui.update_date()
+
 
     def check_for_matches(self) -> None:
         i = 0
