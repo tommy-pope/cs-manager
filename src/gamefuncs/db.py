@@ -22,7 +22,6 @@ class GameDB:
         self.events = []
         self.matches = []
         self.results = []
-
         self.past_events = []
 
         self.date = [1, 1, 2023]
@@ -191,7 +190,7 @@ class GameDB:
         # if tier one event, create qualifier
         if event_rep > 85:
             invited_teams = self.teams[:12]
-            event = Event(event_id, event_name, event_rep, start_date, add_to_date(start_date, days=5), type, invited_teams)
+            event = Event(event_id, event_name, event_rep, start_date, add_to_date(start_date, days=5), type, invited_teams, "WORLD")
             self.events.append(event)
 
             self.generate_event(f"{event_name} Qualifier EU", event_rep - 20, subtract_from_date(start_date, days=16), "qual", "EU", event)
@@ -245,3 +244,6 @@ class GameDB:
 
     def rank_teams(self) -> None:
         self.teams.sort(key=lambda x: x.info.elo, reverse=True)
+
+        for continent in self.continents.values():
+            continent.calculate_team_rankings()

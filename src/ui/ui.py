@@ -1,4 +1,5 @@
 from .rankings_page import create_main_rankings
+from .event_list_page import create_events_page
 
 import customtkinter as ctk
 
@@ -31,7 +32,7 @@ class UI:
         ranking_button = ctk.CTkButton(master=frame, text="Rankings", command=lambda: create_main_rankings(self))
         ranking_button.grid(row=2, column=0, pady=10, padx=10)
 
-        events_button = ctk.CTkButton(master=frame, text="Events")
+        events_button = ctk.CTkButton(master=frame, text="Events", command=lambda: create_events_page(self, "Upcoming"))
         events_button.grid(row=3, column=0, pady=10, padx=10)
     
     def create_mainpage(self):
