@@ -4,7 +4,7 @@ from ...engine.game_engine import GameEngine
 
 from ...gamefuncs.utility import find_closest_square, add_to_date
 
-from math import ceil
+from math import ceil, log2
 
 class Event:
     def __init__(self, id: int, name: str, rep: float, start_date: list, end_date: list, type: str, teams: list, continent: str = None, related_events: list = None) -> None:
@@ -53,13 +53,20 @@ class Event:
 
         # set total rounds if first round
         if self.round == 0:
-            tmp = closest_square
+            if len(self.teams) == closest_square:
+                self.total_rounds = int(log2(closest_square))
+            else:
+                tmp = closest_square
 
-            while tmp > 1:
-                tmp = tmp / 2
+                print(f"total teams: {len(self.teams)} closest_square: {closest_square}")
+
+                while tmp > 1:
+                    tmp = tmp / 2
+                    self.total_rounds += 1
+                
                 self.total_rounds += 1
-            
-            self.total_rounds += 1
+
+        print(f"total teams: {len(self.teams)} total rounds: {self.total_rounds}")
 
         self.round += 1
 
@@ -72,14 +79,14 @@ class Event:
 
             avail_teams = self.active_teams[start_idx:end_idx]
 
-            matches = [Match(avail_teams[i], avail_teams[-i -1], self.start_date, self) for i in range(num_matches)]
+            matches = [Match(avail_teams[i], avail_teams[-i -1], self.start_date, self, self.round) for i in range(num_matches)]
             db.matches.extend(matches)
             self.matches.extend(matches)
         else:
             num_matches = round(len(self.active_teams) / 2)
             game_date = add_to_date(self.start_date, days=1) if self.round > ceil(self.total_rounds / 2) else self.start_date
 
-            matches = [Match(self.active_teams[i], self.active_teams[-i - 1], game_date, self) for i in range(num_matches)]
+            matches = [Match(self.active_teams[i], self.active_teams[-i - 1], game_date, self, self.round) for i in range(num_matches)]
             db.matches.extend(matches)
             self.matches.extend(matches)
         
