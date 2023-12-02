@@ -53,7 +53,7 @@ def create_event_info_page(x, ui, event):
     event_matches_header = ctk.CTkLabel(master=root_frame, text=event_diagram_text, font=("Arial", 25))
     event_matches_header.grid(row=3, column=0, pady=10, columnspan=5)
 
-    event_diagram_frame = ctk.CTkFrame(master=root_frame, width=1000, height=500)
+    event_diagram_frame = ctk.CTkFrame(master=root_frame, width=1000, height=640)
     event_diagram_frame.grid(row=4, column=0, pady=10, columnspan=5)
     event_diagram_frame.grid_propagate(False)
 
@@ -64,8 +64,8 @@ def create_event_info_page(x, ui, event):
         for round in range(1, event.total_rounds + 1):
             matches_in_round = [match for match in event.matches if match.round_in_event == round]
 
-            round_frame = ctk.CTkFrame(master=event_diagram_frame, width=200)
-            round_frame.grid(row=0, column=round-1)
+            round_frame = ctk.CTkFrame(master=event_diagram_frame, width=200, height=630)
+            round_frame.grid(row=0, column=round-1, rowspan=9, pady=5)
             round_frame.grid_propagate(False)
 
             # if these games haven't been generated, then fake them
@@ -79,26 +79,29 @@ def create_event_info_page(x, ui, event):
                 matches_in_round = [i for i in range(fake_matches)]
                     
             matches_foreach_round[round] = matches_in_round
-
+            
             for i in range(len(matches_in_round)):
-                match_frame = ctk.CTkFrame(master=round_frame)
-                match_frame.grid(column=0, row=i)
+                match_frame = ctk.CTkFrame(master=round_frame, height=70)
 
+                if len(matches_in_round) == 0:
+                    row = 0
+                else:
+                    row = i
+
+                match_frame.grid(column=0, row=row)
+                match_frame.grid_propagate(False)
+
+                # , pady=test*(i + 1)
                 if type(matches_in_round[i]) != int:
                     team_one_text = matches_in_round[i].team_one.info.name
                     team_two_text = matches_in_round[i].team_two.info.name
                 else:
-                    team_one_text = "test"
-                    team_two_text = "test2"
+                    team_one_text = "TBD"
+                    team_two_text = "TBD"
 
-                team_one_label = ctk.CTkLabel(master=match_frame, text=team_one_text)
-                team_one_label.grid(row=0, column=0)
+                team_one_label = ctk.CTkLabel(master=match_frame, text=team_one_text, height=30)
+                team_one_label.grid(row=0, column=0, pady=2.5)
 
-                team_two_label = ctk.CTkLabel(master=match_frame, text=team_two_text)
-                team_two_label.grid(row=1, column=0)
-
-
-
-
-
+                team_two_label = ctk.CTkLabel(master=match_frame, text=team_two_text, height=30)
+                team_two_label.grid(row=1, column=0, pady=2.5)
 
