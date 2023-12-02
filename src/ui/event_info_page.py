@@ -53,12 +53,11 @@ def create_event_info_page(x, ui, event):
     event_matches_header = ctk.CTkLabel(master=root_frame, text=event_diagram_text, font=("Arial", 25))
     event_matches_header.grid(row=3, column=0, pady=10, columnspan=5)
 
-    event_diagram_frame = ctk.CTkFrame(master=root_frame, width=1000)
+    event_diagram_frame = ctk.CTkFrame(master=root_frame, width=1000, height=500)
     event_diagram_frame.grid(row=4, column=0, pady=10, columnspan=5)
     event_diagram_frame.grid_propagate(False)
 
     if event.type == "qual":
-        print(f"Total teams: {len(event.teams)}")
         matches_foreach_round = {i: None for i in range(1, event.total_rounds + 1)}
 
         # need to determine how many rounds there will be
@@ -76,17 +75,27 @@ def create_event_info_page(x, ui, event):
                     fake_matches = int((len(event.teams) - len(matches_foreach_round[1]))/2)
                 else:
                     fake_matches = int(len(matches_foreach_round[round-1])/2)
-
-                for i in range(fake_matches):
-                        match_frame = ctk.CTkFrame(master=round_frame)
-                        match_frame.grid(column=0, row=i)
                     
                 matches_in_round = [i for i in range(fake_matches)]
                     
-
             matches_foreach_round[round] = matches_in_round
 
-            print(f"Round: {round}, Num matches: {len(matches_in_round)}")
+            for i in range(len(matches_in_round)):
+                match_frame = ctk.CTkFrame(master=round_frame)
+                match_frame.grid(column=0, row=i)
+
+                if type(matches_in_round[i]) != int:
+                    team_one_text = matches_in_round[i].team_one.info.name
+                    team_two_text = matches_in_round[i].team_two.info.name
+                else:
+                    team_one_text = "test"
+                    team_two_text = "test2"
+
+                team_one_label = ctk.CTkLabel(master=match_frame, text=team_one_text)
+                team_one_label.grid(row=0, column=0)
+
+                team_two_label = ctk.CTkLabel(master=match_frame, text=team_two_text)
+                team_two_label.grid(row=1, column=0)
 
 
 

@@ -58,16 +58,12 @@ class Event:
             else:
                 tmp = closest_square
 
-                print(f"total teams: {len(self.teams)} closest_square: {closest_square}")
-
                 while tmp > 1:
                     tmp = tmp / 2
                     self.total_rounds += 1
                 
                 self.total_rounds += 1
-
-        print(f"total teams: {len(self.teams)} total rounds: {self.total_rounds}")
-
+                
         self.round += 1
 
         if closest_square != len(self.active_teams):
