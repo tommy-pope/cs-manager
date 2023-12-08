@@ -27,6 +27,7 @@ class GameDB:
         self.date = [1, 1, 2023]
 
 
+        self.available_team_names = []
         self.games_generated = False
     
     def setup_game(self) -> None:
@@ -75,6 +76,16 @@ class GameDB:
             continent.calculate_nation_distribution()
 
     def generate_teams(self) -> None:
+        # load team names
+        fp = Path("src/data/team/teams.csv")
+        with open(fp, "r") as file:
+            reader = csv.reader(file, delimiter=",")
+            for line in reader:
+                name = line[0]
+                type = line[1]
+
+                self.available_team_names.append([name, type])
+
         teams_per_cont = {
             "EU": 20,
             "NA": 10,
@@ -92,13 +103,16 @@ class GameDB:
             cont_team_reps = [round(max(30, min(100, x)), 2) for x in cont_team_reps]
 
             for team in range(num_teams):
-                self.generate_team(self.continents[continent], cont_team_reps[team])
+                # select teamname
+                team_name = random.choice(self.available_team_names)
+                self.available_team_names.remove(team_name)
+                team_name = team_name[0]
+
+                self.generate_team(team_name, self.continents[continent], cont_team_reps[team])
             
             self.continents[continent].calculate_team_rankings()
 
-    def generate_team(self, continent: Continent, team_rep: float):
-        team_name = "test"
-        
+    def generate_team(self, team_name: str, continent: Continent, team_rep: float):
         players = []
         awp_generated = False
 
@@ -221,7 +235,6 @@ class GameDB:
         self.date = add_to_date(self.date, days=1)
         ui.update_date()
 
-
     def check_for_matches(self) -> None:
         i = 0
 
@@ -239,11 +252,17 @@ class GameDB:
         
     def generate_event_rounds(self) -> None:
         for event in self.events:
-            if len(event.results) > 0 and check_date_equality(self.date, event.results[-1].date):
+
+            if len(event.results) > 0 and event.type == "qual" and check_date_equality(self.date, event.results[-1].date):
+                event.generate_matches(self)
+            elif event.type == "main" and check_date_equality(self.date, subtract_from_date(event.start_date, days=7)):
                 event.generate_matches(self)
 
     def rank_teams(self) -> None:
         self.teams.sort(key=lambda x: x.info.elo, reverse=True)
+
+        for i in range(len(self.teams)):
+            self.teams[i].info.world_rank = i + 1
 
         for continent in self.continents.values():
             continent.calculate_team_rankings()

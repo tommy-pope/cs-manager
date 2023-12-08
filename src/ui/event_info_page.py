@@ -1,5 +1,7 @@
 import customtkinter as ctk
 
+from .team_info_page import create_team_info_page
+
 def create_event_info_page(x, ui, event):
     root_children = list(ui.root.winfo_children())
     mainpage_children = list(root_children[1].winfo_children())
@@ -43,6 +45,7 @@ def create_event_info_page(x, ui, event):
     for i, team in enumerate(event.teams):
         event_team = ctk.CTkLabel(master=event_teams_box, text=f"{team.info.name} | {team.info.continent.sname}", font=("Arial", 20), width=200)
         event_team.grid(row=i // 5, column=i % 5, pady=5)
+        event_team.bind("<Button-1>", lambda x, copy=team: create_team_info_page(x, ui, copy))
 
     if event.type == "qual":
         event_diagram_text = "Bracket:"
@@ -63,6 +66,7 @@ def create_event_info_page(x, ui, event):
         # need to determine how many rounds there will be
         for round in range(1, event.total_rounds + 1):
             matches_in_round = [match for match in event.matches if match.round_in_event == round]
+            matches_in_round.extend([match for match in event.results if match.round_in_event == round])
 
             round_frame = ctk.CTkFrame(master=event_diagram_frame, width=200, height=630)
             round_frame.grid(row=0, column=round-1, rowspan=9, pady=5)
@@ -107,7 +111,13 @@ def create_event_info_page(x, ui, event):
 
                     team_one_label = ctk.CTkLabel(master=match_frame, text=team_one_text, height=30)
                     team_one_label.grid(row=0, column=0, pady=2.5)
+                    
+                    if team_one_text != "TBD":
+                        team_one_label.bind("<Button-1>", lambda x, copy=matches_in_round[match_idx].team_one: create_team_info_page(x, ui, copy))
 
                     team_two_label = ctk.CTkLabel(master=match_frame, text=team_two_text, height=30)
                     team_two_label.grid(row=1, column=0, pady=2.5)
+
+                    if team_two_text != "TBD":
+                        team_two_label.bind("<Button-1>", lambda x, copy=matches_in_round[match_idx].team_two: create_team_info_page(x, ui, copy))
 

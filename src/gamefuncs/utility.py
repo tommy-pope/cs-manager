@@ -10,6 +10,8 @@ def find_closest_square(number: int) -> int:
         new_diff = abs(squared - number)
 
         if new_diff >= diff:
+            if pow(2, power - 1) > number:
+                return pow(2, power - 2)
             return pow(2, power - 1)
     
         diff = new_diff

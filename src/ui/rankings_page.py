@@ -1,5 +1,7 @@
 import customtkinter as ctk
 
+from .team_info_page import create_team_info_page
+
 def create_main_rankings(ui):
     root_children = list(ui.root.winfo_children())
     mainpage_children = list(root_children[1].winfo_children())
@@ -68,6 +70,7 @@ def create_main_rankings(ui):
 
         name_widget = ctk.CTkLabel(row, text=team_name, width=175, anchor="w", font=("Arial", 15))
         name_widget.grid(row=0, column=1)
+        name_widget.bind("<Button-1>", lambda x, copy=ui.db.teams[i]: create_team_info_page(x, ui, copy))
 
         region_widget = ctk.CTkLabel(row, text=team_region, width=125, anchor="w", font=("Arial", 15))
         region_widget.grid(row=0, column=2)
@@ -145,6 +148,7 @@ def create_region_rankings(ui, region):
 
         name_widget = ctk.CTkLabel(row, text=team_name, width=175, anchor="w", font=("Arial", 15))
         name_widget.grid(row=0, column=1)
+        name_widget.bind("<Button-1>", lambda x, copy=region_teams[i]: create_team_info_page(x, ui, copy))
 
         region_widget = ctk.CTkLabel(row, text=team_region, width=125, anchor="w", font=("Arial", 15))
         region_widget.grid(row=0, column=2)

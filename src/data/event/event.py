@@ -2,7 +2,7 @@ from ..match.match import Match
 
 from ...engine.game_engine import GameEngine
 
-from ...gamefuncs.utility import find_closest_square, add_to_date
+from ...gamefuncs.utility import find_closest_square, add_to_date, check_date_equality, subtract_from_date
 
 from math import ceil, log2
 
@@ -18,7 +18,7 @@ class Event:
         self.related_events = related_events
 
         self.teams = teams
-        self.active_teams = teams
+        self.active_teams = teams.copy()
 
         self.placements = {i: None for i in range(1, len(self.active_teams))}
 
@@ -39,13 +39,27 @@ class Event:
         if len(self.matches) > 0:
             return
 
+        if self.type == "qual":
+            self.generate_bracket_matches(db)
+        elif self.type == "main":
+            self.generate_group_matches(db)
+
+        db.games_generated = True
+
+    def generate_bracket_matches(self, db) -> None:
         # winner
         if len(self.active_teams) == 1:
             self.placements[1] = self.active_teams[0]
 
             db.past_events.append(self)
-            
+    
             for e in db.events:
+                # send winner of qual to main event
+                if e.id == self.related_events[0].id and self.type == "qual":
+                    e.teams.append(self.placements[1])
+                    e.active_teams.append(self.placements[1])
+                    e.placements = {i: None for i in range(1, len(e.active_teams))}
+
                 if e.id == self.id:
                     db.events.remove(e)
 
@@ -71,8 +85,7 @@ class Event:
             teams_in_round = num_matches * 2
 
             start_idx = len(self.active_teams) - teams_in_round
-            end_idx = start_idx + num_matches + 1
-
+            end_idx = start_idx + teams_in_round
             avail_teams = self.active_teams[start_idx:end_idx]
 
             matches = [Match(avail_teams[i], avail_teams[-i -1], self.start_date, self, self.round) for i in range(num_matches)]
@@ -85,8 +98,21 @@ class Event:
             matches = [Match(self.active_teams[i], self.active_teams[-i - 1], game_date, self, self.round) for i in range(num_matches)]
             db.matches.extend(matches)
             self.matches.extend(matches)
+    
+    def generate_group_matches(self, db) -> None:
+        total_groups = int(len(self.teams) / 4)
+
+        self.groups = [[] for i in range(total_groups)]
         
+        for i in range(len(self.teams)):
+            self.groups[i % 4].append(self.teams[i])
+
+        for i, group in enumerate(self.groups):
+            for team in group:
+                print(f"{team.info.name} in group {i}")
+
         db.games_generated = True
+
 
     def play_match(self, db, match) -> None:
         engine = GameEngine(debug=False)
