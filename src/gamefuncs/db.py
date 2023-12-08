@@ -244,6 +244,18 @@ class GameDB:
             # match day is today
             if check_date_equality(self.date, match.date):
                 match.event.play_match(self, match)
+
+                # if group stage, sort groups
+                if match.event.round == 1 and match.event.type == "main":
+                    
+                    for m, group in enumerate(match.event.groups):
+                        match.event.groups[m] = sorted(group, key=lambda x: x.wins, reverse=True)
+
+                        # sort by round diff
+
+                        for team in group:
+                            print(f"{team.info.name} - {team.wins} - {team.losses} - {team.round_difference}")
+
                 i -= 1
 
             i += 1
@@ -255,7 +267,7 @@ class GameDB:
 
             if len(event.results) > 0 and event.type == "qual" and check_date_equality(self.date, event.results[-1].date):
                 event.generate_matches(self)
-            elif event.type == "main" and check_date_equality(self.date, subtract_from_date(event.start_date, days=7)):
+            elif event.type == "main" and check_date_equality(self.date, subtract_from_date(event.start_date, days=7)) and len(event.matches) == 0:
                 event.generate_matches(self)
 
     def rank_teams(self) -> None:

@@ -56,7 +56,7 @@ def create_event_info_page(x, ui, event):
     event_matches_header = ctk.CTkLabel(master=root_frame, text=event_diagram_text, font=("Arial", 25))
     event_matches_header.grid(row=3, column=0, pady=10, columnspan=5)
 
-    event_diagram_frame = ctk.CTkFrame(master=root_frame, width=1000, height=640)
+    event_diagram_frame = ctk.CTkFrame(master=root_frame, width=1200, height=640)
     event_diagram_frame.grid(row=4, column=0, pady=10, columnspan=5)
     event_diagram_frame.grid_propagate(False)
 
@@ -120,4 +120,47 @@ def create_event_info_page(x, ui, event):
 
                     if team_two_text != "TBD":
                         team_two_label.bind("<Button-1>", lambda x, copy=matches_in_round[match_idx].team_two: create_team_info_page(x, ui, copy))
+                        
+    elif event.type == "main":
+        if event.round == 1:
+            for idx, group in enumerate(event.groups):
+                group_header = ctk.CTkLabel(master=event_diagram_frame, text=f"Group {idx+1}", width=300, height=50)
+                group_header.grid(column=idx, row=0)
+
+                group_frame = ctk.CTkFrame(master=event_diagram_frame, width=300, height=590)
+                group_frame.grid(column=idx, row=1)
+                group_frame.grid_propagate(False)
+
+                # group header row
+                row = ctk.CTkFrame(master=group_frame, width=290, height=50)
+                row.grid(column=0, row=0, padx=5)
+
+                position_header = ctk.CTkLabel(master=row, text="Position", width=40)
+                position_header.grid(column=0, row=0)
+
+                team_header = ctk.CTkLabel(master=row, text="Team", width=100)
+                team_header.grid(column=1, row=0)
+
+                win_header = ctk.CTkLabel(master=row, text="Wins", width=75)
+                win_header.grid(column=2, row=0)
+
+                loss_header = ctk.CTkLabel(master=row, text="Losses", width=75)
+                loss_header.grid(column=3, row=0)
+
+                for i, team in enumerate(group):
+                    row = ctk.CTkFrame(master=group_frame, width=290, height=50)
+                    row.grid(column=0, row=i+1, padx=5)
+
+                    position_header = ctk.CTkLabel(master=row, text=i+1, width=40)
+                    position_header.grid(column=0, row=i+1)
+
+                    team_header = ctk.CTkLabel(master=row, text=team.info.name, width=100)
+                    team_header.grid(column=1, row=i+1)
+
+                    win_header = ctk.CTkLabel(master=row, text=team.wins, width=75)
+                    win_header.grid(column=2, row=i+1)
+
+                    loss_header = ctk.CTkLabel(master=row, text=team.losses, width=75)
+                    loss_header.grid(column=3, row=i+1)
+
 

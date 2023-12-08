@@ -100,16 +100,31 @@ class Event:
             self.matches.extend(matches)
     
     def generate_group_matches(self, db) -> None:
+        self.total_rounds = log2(int(len(self.teams) / 2)) + 1
+        self.round = 1
+
         total_groups = int(len(self.teams) / 4)
 
         self.groups = [[] for i in range(total_groups)]
         
         for i in range(len(self.teams)):
+            self.teams[i].wins = 0
+            self.teams[i].losses = 0
+            self.teams[i].round_difference = 0
             self.groups[i % 4].append(self.teams[i])
 
         for i, group in enumerate(self.groups):
-            for team in group:
-                print(f"{team.info.name} in group {i}")
+            m1 = Match(group[0], group[3], self.start_date, self, 1)
+            m2 = Match(group[1], group[2], self.start_date, self, 1)
+
+            m3 = Match(group[2], group[0], add_to_date(self.start_date, days=1), self, 1)
+            m4 = Match(group[3], group[1], add_to_date(self.start_date, days=1), self, 1)
+
+            m5 = Match(group[0], group[1], add_to_date(self.start_date, days=2), self, 1)
+            m6 = Match(group[2], group[3], add_to_date(self.start_date, days=2), self, 1)
+
+            self.matches.extend([m1, m2, m3, m4, m5, m6])
+            db.matches.extend([m1, m2, m3, m4, m5, m6])
 
         db.games_generated = True
 
@@ -128,11 +143,27 @@ class Event:
         if team_one_score > team_two_score:
             match.winner = match.team_one
             match.loser = match.team_two
-            match.event.eliminate_team(match.team_two)
+
+            # group stage
+            if self.type == "main" and self.round == 1:
+                match.team_one.wins += 1
+                match.team_one.round_difference += team_one_score - team_two_score
+                match.team_two.round_difference += team_two_score - team_one_score
+                match.team_two.losses += 1
+            else:
+                match.event.eliminate_team(match.team_two)
         else:
             match.winner = match.team_two
             match.loser = match.team_one
-            match.event.eliminate_team(match.team_one)
+
+            # group stage
+            if self.type == "main" and self.round == 1:
+                match.team_two.wins += 1
+                match.team_one.round_difference += team_one_score - team_two_score
+                match.team_two.round_difference += team_two_score - team_one_score
+                match.team_one.losses += 1
+            else:
+                match.event.eliminate_team(match.team_one)
 
         self.results.append(match)
         self.matches.remove(match)
