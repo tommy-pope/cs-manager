@@ -252,9 +252,12 @@ class GameDB:
                         match.event.groups[m] = sorted(group, key=lambda x: x.wins, reverse=True)
 
                         # sort by round diff
+                        three_win_teams = sorted(list(filter(lambda x: x.wins == 3, match.event.groups[m])), key=lambda x: x.round_difference, reverse=True)
+                        two_win_teams = sorted(list(filter(lambda x: x.wins == 2, match.event.groups[m])), key=lambda x: x.round_difference, reverse=True)
+                        one_win_teams = sorted(list(filter(lambda x: x.wins == 1, match.event.groups[m])), key=lambda x: x.round_difference, reverse=True)
+                        zero_win_teams = sorted(list(filter(lambda x: x.wins == 0, match.event.groups[m])), key=lambda x: x.round_difference, reverse=True)
 
-                        for team in group:
-                            print(f"{team.info.name} - {team.wins} - {team.losses} - {team.round_difference}")
+                        match.event.groups[m] = three_win_teams + two_win_teams + one_win_teams + zero_win_teams
 
                 i -= 1
 
@@ -268,6 +271,15 @@ class GameDB:
             if len(event.results) > 0 and event.type == "qual" and check_date_equality(self.date, event.results[-1].date):
                 event.generate_matches(self)
             elif event.type == "main" and check_date_equality(self.date, subtract_from_date(event.start_date, days=7)) and len(event.matches) == 0:
+                event.generate_matches(self)
+            elif event.type == "main" and check_date_equality(self.date, add_to_date(event.start_date, days=2)) and event.round == 1:
+                for group in event.groups:
+                    for i in range(len(group)):
+                        if i > 1:
+                            event.eliminate_team(group[i])
+
+                event.generate_matches(self)
+            elif event.type == "main" and check_date_equality(self.date, add_to_date(event.start_date, days=1 + event.round)):
                 event.generate_matches(self)
 
     def rank_teams(self) -> None:

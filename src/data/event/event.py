@@ -41,8 +41,10 @@ class Event:
 
         if self.type == "qual":
             self.generate_bracket_matches(db)
-        elif self.type == "main":
+        elif self.type == "main" and self.round == 0:
             self.generate_group_matches(db)
+        elif self.type == "main" and self.round != 0:
+            self.generate_bracket_matches(db)
 
         db.games_generated = True
 
@@ -55,7 +57,7 @@ class Event:
     
             for e in db.events:
                 # send winner of qual to main event
-                if e.id == self.related_events[0].id and self.type == "qual":
+                if self.related_events is not None and e.id == self.related_events[0].id and self.type == "qual":
                     e.teams.append(self.placements[1])
                     e.active_teams.append(self.placements[1])
                     e.placements = {i: None for i in range(1, len(e.active_teams))}
@@ -93,14 +95,18 @@ class Event:
             self.matches.extend(matches)
         else:
             num_matches = round(len(self.active_teams) / 2)
-            game_date = add_to_date(self.start_date, days=1) if self.round > ceil(self.total_rounds / 2) else self.start_date
+            
+            if self.type == "qual":
+                game_date = add_to_date(self.start_date, days=1) if self.round > ceil(self.total_rounds / 2) else self.start_date
+            else:
+                game_date = add_to_date(self.start_date, days=self.round + 1)
 
             matches = [Match(self.active_teams[i], self.active_teams[-i - 1], game_date, self, self.round) for i in range(num_matches)]
             db.matches.extend(matches)
             self.matches.extend(matches)
     
     def generate_group_matches(self, db) -> None:
-        self.total_rounds = log2(int(len(self.teams) / 2)) + 1
+        self.total_rounds = int(log2(int(len(self.teams) / 2)) + 1)
         self.round = 1
 
         total_groups = int(len(self.teams) / 4)
@@ -128,7 +134,6 @@ class Event:
 
         db.games_generated = True
 
-
     def play_match(self, db, match) -> None:
         engine = GameEngine(debug=False)
 
@@ -152,6 +157,7 @@ class Event:
                 match.team_two.losses += 1
             else:
                 match.event.eliminate_team(match.team_two)
+
         else:
             match.winner = match.team_two
             match.loser = match.team_one
