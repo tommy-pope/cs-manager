@@ -28,8 +28,10 @@ class GameEngine:
     def simulate_game(self) -> None:
         # while the score of both teams is less than 16, and it is not 15-15
         while (
-            self.game.game_information.team_one_score < self.game.game_information.rounds_to_reach
-            and self.game.game_information.team_two_score < self.game.game_information.rounds_to_reach
+            self.game.game_information.team_one_score
+            < self.game.game_information.rounds_to_reach
+            and self.game.game_information.team_two_score
+            < self.game.game_information.rounds_to_reach
         ):
             if self.debug:
                 input()
@@ -38,7 +40,7 @@ class GameEngine:
             self.game.game_information.team_one_alive = copy.deepcopy(
                 self.game.team_one.info.players
             )
-            
+
             self.game.game_information.team_two_alive = copy.deepcopy(
                 self.game.team_two.info.players
             )
@@ -52,24 +54,84 @@ class GameEngine:
         rounds = self.game.game_information.current_round
 
         for player in self.game.team_one.info.players:
-            self.game.game_stats.team_one_stats[player.info.player_id]["fpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["kills"]/rounds, 2)
-            self.game.game_stats.team_one_stats[player.info.player_id]["apr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["assists"]/rounds, 2)
-            self.game.game_stats.team_one_stats[player.info.player_id]["fbpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["first_bloods"]/rounds, 2)
-            self.game.game_stats.team_one_stats[player.info.player_id]["cpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["clutches"]/rounds, 2)
-            self.game.game_stats.team_one_stats[player.info.player_id]["mkpr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["multikills"]/rounds, 2)
-            self.game.game_stats.team_one_stats[player.info.player_id]["adr"] = round(self.game.game_stats.team_one_stats[player.info.player_id]["damage"]/rounds, 2)
+            self.game.game_stats.team_one_stats[player.info.player_id]["fpr"] = round(
+                self.game.game_stats.team_one_stats[player.info.player_id]["kills"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_one_stats[player.info.player_id]["apr"] = round(
+                self.game.game_stats.team_one_stats[player.info.player_id]["assists"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_one_stats[player.info.player_id]["fbpr"] = round(
+                self.game.game_stats.team_one_stats[player.info.player_id][
+                    "first_bloods"
+                ]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_one_stats[player.info.player_id]["cpr"] = round(
+                self.game.game_stats.team_one_stats[player.info.player_id]["clutches"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_one_stats[player.info.player_id]["mkpr"] = round(
+                self.game.game_stats.team_one_stats[player.info.player_id]["multikills"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_one_stats[player.info.player_id]["adr"] = round(
+                self.game.game_stats.team_one_stats[player.info.player_id]["damage"]
+                / rounds,
+                2,
+            )
 
-            self.game.game_stats.team_one_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player, self.game.game_stats.team_one_stats)
+            self.game.game_stats.team_one_stats[player.info.player_id][
+                "rating"
+            ] = self.calculate_player_rating(
+                player, self.game.game_stats.team_one_stats
+            )
 
         for player in self.game.team_two.info.players:
-            self.game.game_stats.team_two_stats[player.info.player_id]["fpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["kills"]/rounds, 2)
-            self.game.game_stats.team_two_stats[player.info.player_id]["apr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["assists"]/rounds, 2)
-            self.game.game_stats.team_two_stats[player.info.player_id]["fbpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["first_bloods"]/rounds, 2)
-            self.game.game_stats.team_two_stats[player.info.player_id]["cpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["clutches"]/rounds, 2)
-            self.game.game_stats.team_two_stats[player.info.player_id]["mkpr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["multikills"]/rounds, 2)
-            self.game.game_stats.team_two_stats[player.info.player_id]["adr"] = round(self.game.game_stats.team_two_stats[player.info.player_id]["damage"]/rounds, 2)
+            self.game.game_stats.team_two_stats[player.info.player_id]["fpr"] = round(
+                self.game.game_stats.team_two_stats[player.info.player_id]["kills"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_two_stats[player.info.player_id]["apr"] = round(
+                self.game.game_stats.team_two_stats[player.info.player_id]["assists"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_two_stats[player.info.player_id]["fbpr"] = round(
+                self.game.game_stats.team_two_stats[player.info.player_id][
+                    "first_bloods"
+                ]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_two_stats[player.info.player_id]["cpr"] = round(
+                self.game.game_stats.team_two_stats[player.info.player_id]["clutches"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_two_stats[player.info.player_id]["mkpr"] = round(
+                self.game.game_stats.team_two_stats[player.info.player_id]["multikills"]
+                / rounds,
+                2,
+            )
+            self.game.game_stats.team_two_stats[player.info.player_id]["adr"] = round(
+                self.game.game_stats.team_two_stats[player.info.player_id]["damage"]
+                / rounds,
+                2,
+            )
 
-            self.game.game_stats.team_two_stats[player.info.player_id]["rating"] = self.calculate_player_rating(player, self.game.game_stats.team_two_stats)
+            self.game.game_stats.team_two_stats[player.info.player_id][
+                "rating"
+            ] = self.calculate_player_rating(
+                player, self.game.game_stats.team_two_stats
+            )
 
         if self.debug:
             for item in self.game.game_stats.team_one_stats.items():
@@ -79,14 +141,14 @@ class GameEngine:
                 print(item)
 
     def calculate_player_rating(self, player: Player, stats: GameStats) -> float:
-        fpr_adj = .3
-        apr_adj = .9
-        fbpr_adj = .9
+        fpr_adj = 0.3
+        apr_adj = 0.9
+        fbpr_adj = 0.9
 
-        cpr_adj = .9
+        cpr_adj = 0.9
         cpr_scale = 5
 
-        mkpr_adj = .9
+        mkpr_adj = 0.9
 
         adr_adj = 35
         adr_scale = 100
@@ -98,14 +160,22 @@ class GameEngine:
         mkpr = stats[player.info.player_id]["mkpr"] + mkpr_adj
         adr = (stats[player.info.player_id]["adr"] + adr_adj) / adr_scale
 
-        fpr_weight = .25
-        apr_weight = .15
-        fbpr_weight = .2
-        cpr_weight = .1
-        mkpr_weight = .1
-        adr_weight = .2
-        
-        return round((fpr * fpr_weight) + (apr * apr_weight) + (fbpr * fbpr_weight) + (cpr * cpr_weight) + (mkpr * mkpr_weight) + (adr * adr_weight), 2)
+        fpr_weight = 0.25
+        apr_weight = 0.15
+        fbpr_weight = 0.2
+        cpr_weight = 0.1
+        mkpr_weight = 0.1
+        adr_weight = 0.2
+
+        return round(
+            (fpr * fpr_weight)
+            + (apr * apr_weight)
+            + (fbpr * fbpr_weight)
+            + (cpr * cpr_weight)
+            + (mkpr * mkpr_weight)
+            + (adr * adr_weight),
+            2,
+        )
 
     def repopulate_alive_lists(self) -> None:
         for player in self.game.game_information.team_one_alive:
@@ -123,10 +193,9 @@ class GameEngine:
     def update_economy(self) -> None:
         # if not first round, or halftime
         if (
-            (self.game.game_information.current_round != 1
-            or self.game.game_information.current_round != 16)
-            and not self.game.game_information.is_overtime
-        ):
+            self.game.game_information.current_round != 1
+            or self.game.game_information.current_round != 16
+        ) and not self.game.game_information.is_overtime:
             team_one_money_to_add = 0
             team_two_money_to_add = 0
 
@@ -244,7 +313,7 @@ class GameEngine:
             last_round_buy = self.game.game_information.team_two_buy
 
             money_per_survivor = 0
-                
+
             if last_round_buy == "save":
                 money_per_survivor = 800
             elif last_round_buy == "force":
@@ -323,16 +392,26 @@ class GameEngine:
             print(f"Team Two Money: {self.game.game_information.team_two_money}")
 
     def select_team_one_player(self) -> Player:
-        valid_players = [player for player in self.game.game_information.team_one_alive if player.alive == True]
+        valid_players = [
+            player
+            for player in self.game.game_information.team_one_alive
+            if player.alive == True
+        ]
 
         return random.choice(valid_players)
-    
+
     def select_team_two_player(self) -> Player:
-        valid_players = [player for player in self.game.game_information.team_two_alive if player.alive == True]
+        valid_players = [
+            player
+            for player in self.game.game_information.team_two_alive
+            if player.alive == True
+        ]
 
         return random.choice(valid_players)
 
-    def calculate_buy_odds(self, player_one_is_awp: bool, player_two_is_awp: bool) -> int:
+    def calculate_buy_odds(
+        self, player_one_is_awp: bool, player_two_is_awp: bool
+    ) -> int:
         team_one_buy = self.game.game_information.team_one_buy
         team_two_buy = self.game.game_information.team_two_buy
 
@@ -344,7 +423,13 @@ class GameEngine:
 
         return weapon_stats[team_one_buy][team_two_buy]
 
-    def calculate_stats_odds(self, player_one: PlayerAttributes, player_two: PlayerAttributes, team_one_alive: int, team_two_alive: int) -> float:
+    def calculate_stats_odds(
+        self,
+        player_one: PlayerAttributes,
+        player_two: PlayerAttributes,
+        team_one_alive: int,
+        team_two_alive: int,
+    ) -> float:
         team_one_buy = self.game.game_information.team_one_buy
         team_two_buy = self.game.game_information.team_two_buy
 
@@ -357,23 +442,63 @@ class GameEngine:
         player_one_stat = ""
         player_two_stat = ""
 
-        player_one_stat = player_one.awp if player_one.is_awper and team_one_buy == "full-awp" else player_one_stat
-        player_one_stat = player_one.rifle if not player_one.is_awper and team_one_buy == "full-awp" else player_one_stat
-        player_one_stat = player_one.rifle if team_one_buy == "full" else player_one_stat
-        player_one_stat = player_one.awp if team_one_buy == "force" and player_one.is_awper else player_one_stat
-        player_one_stat = player_one.rifle if team_one_buy == "force" and not player_one.is_awper else player_one_stat
-        player_one_stat = player_one.pistol if team_one_buy == "save" else player_one_stat
+        player_one_stat = (
+            player_one.awp
+            if player_one.is_awper and team_one_buy == "full-awp"
+            else player_one_stat
+        )
+        player_one_stat = (
+            player_one.rifle
+            if not player_one.is_awper and team_one_buy == "full-awp"
+            else player_one_stat
+        )
+        player_one_stat = (
+            player_one.rifle if team_one_buy == "full" else player_one_stat
+        )
+        player_one_stat = (
+            player_one.awp
+            if team_one_buy == "force" and player_one.is_awper
+            else player_one_stat
+        )
+        player_one_stat = (
+            player_one.rifle
+            if team_one_buy == "force" and not player_one.is_awper
+            else player_one_stat
+        )
+        player_one_stat = (
+            player_one.pistol if team_one_buy == "save" else player_one_stat
+        )
 
-        player_two_stat = player_two.awp if player_two.is_awper and team_two_buy == "full-awp" else player_two_stat
-        player_two_stat = player_two.rifle if not player_two.is_awper and team_two_buy == "full-awp" else player_two_stat
-        player_two_stat = player_two.rifle if team_two_buy == "full" else player_two_stat
-        player_two_stat = player_two.awp if team_two_buy == "force" and player_two.is_awper else player_two_stat
-        player_two_stat = player_two.rifle if team_two_buy == "force" and not player_two.is_awper else player_two_stat
-        player_two_stat = player_two.pistol if team_two_buy == "save" else player_two_stat
+        player_two_stat = (
+            player_two.awp
+            if player_two.is_awper and team_two_buy == "full-awp"
+            else player_two_stat
+        )
+        player_two_stat = (
+            player_two.rifle
+            if not player_two.is_awper and team_two_buy == "full-awp"
+            else player_two_stat
+        )
+        player_two_stat = (
+            player_two.rifle if team_two_buy == "full" else player_two_stat
+        )
+        player_two_stat = (
+            player_two.awp
+            if team_two_buy == "force" and player_two.is_awper
+            else player_two_stat
+        )
+        player_two_stat = (
+            player_two.rifle
+            if team_two_buy == "force" and not player_two.is_awper
+            else player_two_stat
+        )
+        player_two_stat = (
+            player_two.pistol if team_two_buy == "save" else player_two_stat
+        )
 
-        skill_weight = .25
-        con_weight = .15
-        clu_weight = .1
+        skill_weight = 0.25
+        con_weight = 0.15
+        clu_weight = 0.1
 
         p1_clutch = player_one.clutch if team_one_alive == 1 else 0
         p2_clutch = player_two.clutch if team_two_alive == 1 else 0
@@ -384,19 +509,28 @@ class GameEngine:
         if team_one_alive == 1 and team_two_alive == 1:
             clu_odds = (p1_clutch - p2_clutch) * clu_weight
         elif team_one_alive == 1:
-            clu_odds = (p1_clutch / 10) * clu_weight 
+            clu_odds = (p1_clutch / 10) * clu_weight
         elif team_two_alive == 1:
             clu_odds = -(p2_clutch / 10) * clu_weight
         else:
             clu_odds = 0
 
-
         return skill_odds + con_odds + clu_odds
 
-    def calculate_encounter_odds(self, player_one: Player, player_two: Player, team_one_alive: int, team_two_alive: int) -> float:
+    def calculate_encounter_odds(
+        self,
+        player_one: Player,
+        player_two: Player,
+        team_one_alive: int,
+        team_two_alive: int,
+    ) -> float:
         # larger number favors player one, smaller favors player two
-        buy_odds = self.calculate_buy_odds(player_one.attributes.is_awper, player_two.attributes.is_awper)
-        stats_odds = self.calculate_stats_odds(player_one.attributes, player_two.attributes, team_one_alive, team_two_alive)
+        buy_odds = self.calculate_buy_odds(
+            player_one.attributes.is_awper, player_two.attributes.is_awper
+        )
+        stats_odds = self.calculate_stats_odds(
+            player_one.attributes, player_two.attributes, team_one_alive, team_two_alive
+        )
 
         odds = 50 + buy_odds + stats_odds
 
@@ -405,21 +539,35 @@ class GameEngine:
     def calculate_damage_done(self, player: Player, team_buy: str) -> int:
         player_stat = ""
 
-        player_stat = "AWP" if player.attributes.is_awper and team_buy == "full-awp" else player_stat
-        player_stat = "RIFLE" if not player.attributes.is_awper and team_buy == "full-awp" else player_stat
+        player_stat = (
+            "AWP"
+            if player.attributes.is_awper and team_buy == "full-awp"
+            else player_stat
+        )
+        player_stat = (
+            "RIFLE"
+            if not player.attributes.is_awper and team_buy == "full-awp"
+            else player_stat
+        )
         player_stat = "RIFLE" if team_buy == "full" else player_stat
-        player_stat = "AWP" if team_buy == "force" and player.attributes.is_awper else player_stat
-        player_stat = "RIFLE" if team_buy == "force" and not player.attributes.is_awper else player_stat
+        player_stat = (
+            "AWP" if team_buy == "force" and player.attributes.is_awper else player_stat
+        )
+        player_stat = (
+            "RIFLE"
+            if team_buy == "force" and not player.attributes.is_awper
+            else player_stat
+        )
         player_stat = "PISTOL" if team_buy == "save" else player_stat
-        
+
         if player_stat == "AWP":
-            chance_to_kill = 80 + (player.attributes.awp/10)
+            chance_to_kill = 80 + (player.attributes.awp / 10)
             min_damage = 50
         elif player_stat == "RIFLE":
-            chance_to_kill = 65 + (player.attributes.rifle/10)
+            chance_to_kill = 65 + (player.attributes.rifle / 10)
             min_damage = 20
         elif player_stat == "PISTOL":
-            chance_to_kill = 60 + (player.attributes.pistol/10)
+            chance_to_kill = 60 + (player.attributes.pistol / 10)
             min_damage = 10
 
         chance = random.random() * 100
@@ -454,18 +602,26 @@ class GameEngine:
     def on_player_death(self, dead_player: Player, team: str) -> None:
         dead_player.hp = 0
         dead_player.alive = False
-        
+
         if team == "team_one":
-            self.game.game_stats.team_one_stats[dead_player.info.player_id]["deaths"] += 1
+            self.game.game_stats.team_one_stats[dead_player.info.player_id][
+                "deaths"
+            ] += 1
         elif team == "team_two":
-            self.game.game_stats.team_two_stats[dead_player.info.player_id]["deaths"] += 1
+            self.game.game_stats.team_two_stats[dead_player.info.player_id][
+                "deaths"
+            ] += 1
 
         for player in dead_player.hit_by:
             if team == "team_one":
-                self.game.game_stats.team_two_stats[player.info.player_id]["assists"] += 1
+                self.game.game_stats.team_two_stats[player.info.player_id][
+                    "assists"
+                ] += 1
             elif team == "team_two":
-                self.game.game_stats.team_one_stats[player.info.player_id]["assists"] += 1
-            
+                self.game.game_stats.team_one_stats[player.info.player_id][
+                    "assists"
+                ] += 1
+
     def simulate_round(self) -> None:
         team_one_players_alive = 5
         team_two_players_alive = 5
@@ -474,10 +630,14 @@ class GameEngine:
             player_one = self.select_team_one_player()
             player_two = self.select_team_two_player()
 
-            odds = self.calculate_encounter_odds(player_one, player_two, team_one_players_alive, team_two_players_alive)
+            odds = self.calculate_encounter_odds(
+                player_one, player_two, team_one_players_alive, team_two_players_alive
+            )
 
             if (random.random() * 100) < odds:
-                damage = self.calculate_damage_done(player_one, self.game.game_information.team_one_buy)
+                damage = self.calculate_damage_done(
+                    player_one, self.game.game_information.team_one_buy
+                )
 
                 # killed them
                 if damage >= player_two.hp:
@@ -485,28 +645,39 @@ class GameEngine:
                     damage = player_two.hp
                     self.on_player_death(player_two, "team_two")
 
-                    team_two_players_alive -=1
+                    team_two_players_alive -= 1
 
-                    self.game.game_stats.team_one_stats[player_one.info.player_id]["kills"] += 1
+                    self.game.game_stats.team_one_stats[player_one.info.player_id][
+                        "kills"
+                    ] += 1
                     player_one.kills_in_round += 1
 
                     if player_one.kills_in_round == 2:
-                        self.game.game_stats.team_one_stats[player_one.info.player_id]["multikills"] += 1
+                        self.game.game_stats.team_one_stats[player_one.info.player_id][
+                            "multikills"
+                        ] += 1
 
                     if team_two_players_alive == 4:
-                        self.game.game_stats.team_one_stats[player_one.info.player_id]["first_bloods"] += 1
-                    
+                        self.game.game_stats.team_one_stats[player_one.info.player_id][
+                            "first_bloods"
+                        ] += 1
+
                     if team_one_players_alive == 1 and team_two_players_alive == 0:
-                        self.game.game_stats.team_one_stats[player_one.info.player_id]["clutches"] += 1
+                        self.game.game_stats.team_one_stats[player_one.info.player_id][
+                            "clutches"
+                        ] += 1
                 else:
                     player_two.hp -= damage
                     if player_one not in player_two.hit_by:
                         player_two.hit_by.append(player_one)
 
-
-                self.game.game_stats.team_one_stats[player_one.info.player_id]["damage"] += damage
+                self.game.game_stats.team_one_stats[player_one.info.player_id][
+                    "damage"
+                ] += damage
             else:
-                damage = self.calculate_damage_done(player_two, self.game.game_information.team_two_buy)
+                damage = self.calculate_damage_done(
+                    player_two, self.game.game_information.team_two_buy
+                )
 
                 # killed them
                 if damage >= player_one.hp:
@@ -516,30 +687,40 @@ class GameEngine:
                     self.on_player_death(player_one, "team_one")
                     team_one_players_alive -= 1
 
-                    self.game.game_stats.team_two_stats[player_two.info.player_id]["kills"] += 1
+                    self.game.game_stats.team_two_stats[player_two.info.player_id][
+                        "kills"
+                    ] += 1
                     player_two.kills_in_round += 1
 
                     if player_two.kills_in_round == 2:
-                        self.game.game_stats.team_two_stats[player_two.info.player_id]["multikills"] += 1
+                        self.game.game_stats.team_two_stats[player_two.info.player_id][
+                            "multikills"
+                        ] += 1
 
                     if team_one_players_alive == 4:
-                        self.game.game_stats.team_two_stats[player_two.info.player_id]["first_bloods"] += 1
-                    
+                        self.game.game_stats.team_two_stats[player_two.info.player_id][
+                            "first_bloods"
+                        ] += 1
+
                     if team_two_players_alive == 1 and team_one_players_alive == 0:
-                        self.game.game_stats.team_two_stats[player_two.info.player_id]["clutches"] += 1
+                        self.game.game_stats.team_two_stats[player_two.info.player_id][
+                            "clutches"
+                        ] += 1
                 else:
                     player_one.hp -= damage
                     if player_two not in player_one.hit_by:
                         player_one.hit_by.append(player_two)
-                
-                self.game.game_stats.team_two_stats[player_two.info.player_id]["damage"] += damage
+
+                self.game.game_stats.team_two_stats[player_two.info.player_id][
+                    "damage"
+                ] += damage
 
         # determine round winner
         if team_one_players_alive == 0:
             self.team_two_round_win(team_two_players_alive)
         elif team_two_players_alive == 0:
             self.team_one_round_win(team_one_players_alive)
-            
+
         if self.debug:
             print()
             print(f"Current Round: {self.game.game_information.current_round}")
@@ -555,7 +736,12 @@ class GameEngine:
             print(f"Team One Buy: {self.game.game_information.team_one_buy}")
             print(f"Team Two Buy: {self.game.game_information.team_two_buy}")
             print()
-        
-        if self.game.game_information.team_one_score == self.game.game_information.rounds_to_reach-1 and self.game.game_information.team_two_score == self.game.game_information.rounds_to_reach-1:
+
+        if (
+            self.game.game_information.team_one_score
+            == self.game.game_information.rounds_to_reach - 1
+            and self.game.game_information.team_two_score
+            == self.game.game_information.rounds_to_reach - 1
+        ):
             self.game.game_information.is_overtime = True
             self.game.game_information.rounds_to_reach += 3

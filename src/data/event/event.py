@@ -2,12 +2,29 @@ from ..match.match import Match
 
 from ...engine.game_engine import GameEngine
 
-from ...gamefuncs.utility import find_closest_square, add_to_date, check_date_equality, subtract_from_date
+from ...gamefuncs.utility import (
+    find_closest_square,
+    add_to_date,
+    check_date_equality,
+    subtract_from_date,
+)
 
 from math import ceil, log2
 
+
 class Event:
-    def __init__(self, id: int, name: str, rep: float, start_date: list, end_date: list, type: str, teams: list, continent: str = None, related_events: list = None) -> None:
+    def __init__(
+        self,
+        id: int,
+        name: str,
+        rep: float,
+        start_date: list,
+        end_date: list,
+        type: str,
+        teams: list,
+        continent: str = None,
+        related_events: list = None,
+    ) -> None:
         self.id = id
         self.name = name
         self.rep = rep
@@ -34,7 +51,7 @@ class Event:
                 self.placements[len(self.active_teams)] = team
                 self.active_teams.remove(t)
                 break
-    
+
     def generate_matches(self, db) -> None:
         if len(self.matches) > 0:
             return
@@ -54,10 +71,14 @@ class Event:
             self.placements[1] = self.active_teams[0]
 
             db.past_events.append(self)
-    
+
             for e in db.events:
                 # send winner of qual to main event
-                if self.related_events is not None and e.id == self.related_events[0].id and self.type == "qual":
+                if (
+                    self.related_events is not None
+                    and e.id == self.related_events[0].id
+                    and self.type == "qual"
+                ):
                     e.teams.append(self.placements[1])
                     e.active_teams.append(self.placements[1])
                     e.placements = {i: None for i in range(1, len(e.active_teams))}
@@ -77,9 +98,9 @@ class Event:
                 while tmp > 1:
                     tmp = tmp / 2
                     self.total_rounds += 1
-                
+
                 self.total_rounds += 1
-                
+
         self.round += 1
 
         if closest_square != len(self.active_teams):
@@ -90,21 +111,43 @@ class Event:
             end_idx = start_idx + teams_in_round
             avail_teams = self.active_teams[start_idx:end_idx]
 
-            matches = [Match(avail_teams[i], avail_teams[-i -1], self.start_date, self, self.round) for i in range(num_matches)]
+            matches = [
+                Match(
+                    avail_teams[i],
+                    avail_teams[-i - 1],
+                    self.start_date,
+                    self,
+                    self.round,
+                )
+                for i in range(num_matches)
+            ]
             db.matches.extend(matches)
             self.matches.extend(matches)
         else:
             num_matches = round(len(self.active_teams) / 2)
-            
+
             if self.type == "qual":
-                game_date = add_to_date(self.start_date, days=1) if self.round > ceil(self.total_rounds / 2) else self.start_date
+                game_date = (
+                    add_to_date(self.start_date, days=1)
+                    if self.round > ceil(self.total_rounds / 2)
+                    else self.start_date
+                )
             else:
                 game_date = add_to_date(self.start_date, days=self.round + 1)
 
-            matches = [Match(self.active_teams[i], self.active_teams[-i - 1], game_date, self, self.round) for i in range(num_matches)]
+            matches = [
+                Match(
+                    self.active_teams[i],
+                    self.active_teams[-i - 1],
+                    game_date,
+                    self,
+                    self.round,
+                )
+                for i in range(num_matches)
+            ]
             db.matches.extend(matches)
             self.matches.extend(matches)
-    
+
     def generate_group_matches(self, db) -> None:
         self.total_rounds = int(log2(int(len(self.teams) / 2)) + 1)
         self.round = 1
@@ -112,7 +155,7 @@ class Event:
         total_groups = int(len(self.teams) / 4)
 
         self.groups = [[] for i in range(total_groups)]
-        
+
         for i in range(len(self.teams)):
             self.teams[i].wins = 0
             self.teams[i].losses = 0
@@ -123,11 +166,19 @@ class Event:
             m1 = Match(group[0], group[3], self.start_date, self, 1)
             m2 = Match(group[1], group[2], self.start_date, self, 1)
 
-            m3 = Match(group[2], group[0], add_to_date(self.start_date, days=1), self, 1)
-            m4 = Match(group[3], group[1], add_to_date(self.start_date, days=1), self, 1)
+            m3 = Match(
+                group[2], group[0], add_to_date(self.start_date, days=1), self, 1
+            )
+            m4 = Match(
+                group[3], group[1], add_to_date(self.start_date, days=1), self, 1
+            )
 
-            m5 = Match(group[0], group[1], add_to_date(self.start_date, days=2), self, 1)
-            m6 = Match(group[2], group[3], add_to_date(self.start_date, days=2), self, 1)
+            m5 = Match(
+                group[0], group[1], add_to_date(self.start_date, days=2), self, 1
+            )
+            m6 = Match(
+                group[2], group[3], add_to_date(self.start_date, days=2), self, 1
+            )
 
             self.matches.extend([m1, m2, m3, m4, m5, m6])
             db.matches.extend([m1, m2, m3, m4, m5, m6])
@@ -176,7 +227,3 @@ class Event:
 
         db.results.append(match)
         db.matches.remove(match)
-
-
-        
-

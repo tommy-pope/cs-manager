@@ -7,6 +7,7 @@ import customtkinter as ctk
 
 
 def main():
+    # db = GameDB.load_game()
     db = GameDB()
     db.setup_game()
 

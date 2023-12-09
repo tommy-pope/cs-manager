@@ -2,7 +2,9 @@ from ..player.player import Player
 
 
 class TeamInformation:
-    def __init__(self, id: int, name: str, reputation: float, players: list, continent) -> None:
+    def __init__(
+        self, id: int, name: str, reputation: float, players: list, continent
+    ) -> None:
         self.id = id
         self.name = name
         self.reputation = reputation

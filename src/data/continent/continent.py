@@ -1,5 +1,7 @@
 class Continent:
-    def __init__(self, continent_name: str, short_name: str, continent_rep: float) -> None:
+    def __init__(
+        self, continent_name: str, short_name: str, continent_rep: float
+    ) -> None:
         self.name = continent_name
         self.sname = short_name
         self.rep = continent_rep
@@ -7,7 +9,7 @@ class Continent:
         self.teams = []
 
         self.nation_distribution = {}
-    
+
     def calculate_nation_distribution(self) -> None:
         # normalize, calculate percentage using power function, normalize weights, convert weights to percentages
         nations = [nation for nation in self.nations.values()]
@@ -19,6 +21,6 @@ class Continent:
 
         for idx in range(len(percentages)):
             self.nation_distribution[nations[idx].sname] = percentages[idx]
-    
+
     def calculate_team_rankings(self) -> None:
         self.teams.sort(key=lambda x: x.info.elo, reverse=True)

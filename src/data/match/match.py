@@ -10,5 +10,5 @@ class Match:
 
         self.winner = None
         self.loser = None
-        
+
         self.game_stats = None
