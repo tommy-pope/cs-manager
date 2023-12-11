@@ -202,7 +202,7 @@ class Event:
             team_two_score = finished_game.game_information.team_two_score
 
             match.scores.append([team_one_score, team_two_score])
-            match.game_stats = finished_game.game_stats
+            match.game_stats.append(finished_game.game_stats)
 
             if team_one_score > team_two_score:
                 match.winner = match.team_one
