@@ -75,12 +75,13 @@ class Event:
             for e in db.events:
                 # send winner of qual to main event
                 if (
-                    self.related_events is not None
+                    self.type == "qual"
                     and e.id == self.related_events[0].id
-                    and self.type == "qual"
                 ):
                     e.teams.append(self.placements[1])
                     e.active_teams.append(self.placements[1])
+                    self.placements[1].wins = 0
+                    self.placements[1].losses = 0
                     e.placements = {i: None for i in range(1, len(e.active_teams))}
 
                 if e.id == self.id:
@@ -103,6 +104,10 @@ class Event:
 
         self.round += 1
 
+        bestof = 3
+        if self.round == 1 and self.type == "qual":
+            bestof = 1
+
         if closest_square != len(self.active_teams):
             num_matches = len(self.active_teams) - closest_square
             teams_in_round = num_matches * 2
@@ -118,6 +123,7 @@ class Event:
                     self.start_date,
                     self,
                     self.round,
+                    bestof
                 )
                 for i in range(num_matches)
             ]
@@ -142,6 +148,7 @@ class Event:
                     game_date,
                     self,
                     self.round,
+                    bestof
                 )
                 for i in range(num_matches)
             ]
@@ -163,21 +170,21 @@ class Event:
             self.groups[i % 4].append(self.teams[i])
 
         for i, group in enumerate(self.groups):
-            m1 = Match(group[0], group[3], self.start_date, self, 1)
-            m2 = Match(group[1], group[2], self.start_date, self, 1)
+            m1 = Match(group[0], group[3], self.start_date, self, 1, 3)
+            m2 = Match(group[1], group[2], self.start_date, self, 1, 3)
 
             m3 = Match(
-                group[2], group[0], add_to_date(self.start_date, days=1), self, 1
+                group[2], group[0], add_to_date(self.start_date, days=1), self, 1, 3
             )
             m4 = Match(
-                group[3], group[1], add_to_date(self.start_date, days=1), self, 1
+                group[3], group[1], add_to_date(self.start_date, days=1), self, 1, 3
             )
 
             m5 = Match(
-                group[0], group[1], add_to_date(self.start_date, days=2), self, 1
+                group[0], group[1], add_to_date(self.start_date, days=2), self, 1, 3
             )
             m6 = Match(
-                group[2], group[3], add_to_date(self.start_date, days=2), self, 1
+                group[2], group[3], add_to_date(self.start_date, days=2), self, 1, 3
             )
 
             self.matches.extend([m1, m2, m3, m4, m5, m6])
@@ -188,39 +195,83 @@ class Event:
     def play_match(self, db, match) -> None:
         engine = GameEngine(debug=False)
 
-        finished_game = engine.play_game(match.team_one, match.team_two)
+        if match.bo == 1:
+            finished_game = engine.play_game(match.team_one, match.team_two)
 
-        team_one_score = finished_game.game_information.team_one_score
-        team_two_score = finished_game.game_information.team_two_score
+            team_one_score = finished_game.game_information.team_one_score
+            team_two_score = finished_game.game_information.team_two_score
 
-        match.scores.extend([team_one_score, team_two_score])
-        match.game_stats = finished_game.game_stats
+            match.scores.append([team_one_score, team_two_score])
+            match.game_stats = finished_game.game_stats
 
-        if team_one_score > team_two_score:
-            match.winner = match.team_one
-            match.loser = match.team_two
+            if team_one_score > team_two_score:
+                match.winner = match.team_one
+                match.loser = match.team_two
 
-            # group stage
-            if self.type == "main" and self.round == 1:
-                match.team_one.wins += 1
-                match.team_one.round_difference += team_one_score - team_two_score
-                match.team_two.round_difference += team_two_score - team_one_score
-                match.team_two.losses += 1
+                # group stage
+                if self.type == "main" and self.round == 1:
+                    match.team_one.wins += 1
+                    match.team_one.round_difference += team_one_score - team_two_score
+                    match.team_two.round_difference += team_two_score - team_one_score
+                    match.team_two.losses += 1
+                else:
+                    match.event.eliminate_team(match.team_two)
+
             else:
-                match.event.eliminate_team(match.team_two)
+                match.winner = match.team_two
+                match.loser = match.team_one
 
-        else:
-            match.winner = match.team_two
-            match.loser = match.team_one
+                # group stage
+                if self.type == "main" and self.round == 1:
+                    match.team_two.wins += 1
+                    match.team_one.round_difference += team_one_score - team_two_score
+                    match.team_two.round_difference += team_two_score - team_one_score
+                    match.team_one.losses += 1
+                else:
+                    match.event.eliminate_team(match.team_one)
+                    
+        elif match.bo == 3:
+            team_one_maps = 0
+            team_two_maps = 0
 
-            # group stage
-            if self.type == "main" and self.round == 1:
-                match.team_two.wins += 1
-                match.team_one.round_difference += team_one_score - team_two_score
-                match.team_two.round_difference += team_two_score - team_one_score
-                match.team_one.losses += 1
+            while team_one_maps < 2 and team_two_maps < 2:
+                finished_game = engine.play_game(match.team_one, match.team_two)
+
+                team_one_score = finished_game.game_information.team_one_score
+                team_two_score = finished_game.game_information.team_two_score
+
+                if team_one_score > team_two_score:
+                    team_one_maps += 1
+                else:
+                    team_two_maps += 1
+
+                match.scores.append([team_one_score, team_two_score])
+                match.game_stats.append(finished_game.game_stats)
+
+            if team_one_maps > team_two_maps:
+                match.winner = match.team_one
+                match.loser = match.team_two
+
+                # group stage
+                if self.type == "main" and self.round == 1:
+                    match.team_one.wins += 1
+                    match.team_one.round_difference += team_one_score - team_two_score
+                    match.team_two.round_difference += team_two_score - team_one_score
+                    match.team_two.losses += 1
+                else:
+                    match.event.eliminate_team(match.team_two)
             else:
-                match.event.eliminate_team(match.team_one)
+                match.winner = match.team_two
+                match.loser = match.team_one
+
+                # group stage
+                if self.type == "main" and self.round == 1:
+                    match.team_two.wins += 1
+                    match.team_one.round_difference += team_one_score - team_two_score
+                    match.team_two.round_difference += team_two_score - team_one_score
+                    match.team_one.losses += 1
+                else:
+                    match.event.eliminate_team(match.team_one)
 
         self.results.append(match)
         self.matches.remove(match)

@@ -26,7 +26,7 @@ class GameEngine:
         self.game = Game(team_one, team_two, GameInformation(), game_stats)
 
     def simulate_game(self) -> None:
-        # while the score of both teams is less than 16, and it is not 15-15
+        # while the score of both teams is less than 13, and it is not 12-12
         while (
             self.game.game_information.team_one_score
             < self.game.game_information.rounds_to_reach
@@ -194,7 +194,7 @@ class GameEngine:
         # if not first round, or halftime
         if (
             self.game.game_information.current_round != 1
-            or self.game.game_information.current_round != 16
+            or self.game.game_information.current_round != 13
         ) and not self.game.game_information.is_overtime:
             team_one_money_to_add = 0
             team_two_money_to_add = 0
@@ -365,7 +365,7 @@ class GameEngine:
         # pistol round
         if (
             self.game.game_information.current_round == 1
-            or self.game.game_information.current_round == 16
+            or self.game.game_information.current_round == 13
         ):
             self.game.game_information.team_one_buy = "save"
             self.game.game_information.team_two_buy = "save"

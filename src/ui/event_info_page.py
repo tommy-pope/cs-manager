@@ -3,7 +3,7 @@ import customtkinter as ctk
 from .team_info_page import create_team_info_page
 
 
-def create_event_info_page(x, ui, event):
+def create_event_info_page(x, ui, event, filter=None):
     root_children = list(ui.root.winfo_children())
     mainpage_children = list(root_children[1].winfo_children())
 
@@ -11,6 +11,9 @@ def create_event_info_page(x, ui, event):
         child.destroy()
 
     root_frame = root_children[1]
+
+    if filter is None:
+        filter = "Group" if event.type == "main" and event.round < 2 else "Bracket"
 
     # main header
     event_header = ctk.CTkLabel(
@@ -73,78 +76,55 @@ def create_event_info_page(x, ui, event):
             "<Button-1>", lambda x, copy=team: create_team_info_page(x, ui, copy)
         )
 
-    if event.type == "qual":
-        event_diagram_text = "Bracket:"
-    elif event.type == "main":
-        event_diagram_text = "Group Stage:"
+    event_matches_header_idx = 3
+    event_diagram_frame_idx = 4
+
+    # if event with group and bracket
+    if event.type == "main" and event.round >= 2:
+        event_stage_selector = ctk.CTkFrame(root_frame, 200)
+        event_stage_selector.grid(row=3, column=2)
+
+        group_stage = ctk.CTkButton(
+            master=event_stage_selector,
+            text="Group Stage",
+            command=lambda: create_event_info_page(None, ui, event, "Group"),
+        )
+        group_stage.grid(row=0, column=1)
+
+        bracket_stage = ctk.CTkButton(
+            master=event_stage_selector,
+            text="Bracket Stage",
+            command=lambda: create_event_info_page(None, ui, event, "Bracket"),
+        )
+        bracket_stage.grid(row=0, column=2)
+
+        event_matches_header_idx = 4
+        event_diagram_frame_idx = 5
+
+    event_diagram_text = f"{filter}:"
 
     # event diagram
     event_matches_header = ctk.CTkLabel(
         master=root_frame, text=event_diagram_text, font=("Arial", 25)
     )
-    event_matches_header.grid(row=3, column=0, pady=10, columnspan=5)
+
+    event_matches_header.grid(
+        row=event_matches_header_idx, column=0, pady=10, columnspan=5
+    )
 
     event_diagram_frame = ctk.CTkFrame(master=root_frame, width=1200, height=640)
-    event_diagram_frame.grid(row=4, column=0, pady=10, columnspan=5)
+    event_diagram_frame.grid(
+        row=event_diagram_frame_idx, column=0, pady=10, columnspan=5
+    )
     event_diagram_frame.grid_propagate(False)
 
-    if event.type == "qual":
-        generate_bracket(event_diagram_frame, event, ui)
-    elif event.type == "main":
-        if event.round == 1:
-            for idx, group in enumerate(event.groups):
-                group_header = ctk.CTkLabel(
-                    master=event_diagram_frame,
-                    text=f"Group {idx+1}",
-                    width=300,
-                    height=50,
-                )
-                group_header.grid(column=idx, row=0)
-
-                group_frame = ctk.CTkFrame(
-                    master=event_diagram_frame, width=300, height=590
-                )
-                group_frame.grid(column=idx, row=1)
-                group_frame.grid_propagate(False)
-
-                # group header row
-                row = ctk.CTkFrame(master=group_frame, width=290, height=50)
-                row.grid(column=0, row=0, padx=5)
-
-                position_header = ctk.CTkLabel(master=row, text="Position", width=40)
-                position_header.grid(column=0, row=0)
-
-                team_header = ctk.CTkLabel(master=row, text="Team", width=100)
-                team_header.grid(column=1, row=0)
-
-                win_header = ctk.CTkLabel(master=row, text="Wins", width=75)
-                win_header.grid(column=2, row=0)
-
-                loss_header = ctk.CTkLabel(master=row, text="Losses", width=75)
-                loss_header.grid(column=3, row=0)
-
-                for i, team in enumerate(group):
-                    row = ctk.CTkFrame(master=group_frame, width=290, height=50)
-                    row.grid(column=0, row=i + 1, padx=5)
-
-                    position_header = ctk.CTkLabel(master=row, text=i + 1, width=40)
-                    position_header.grid(column=0, row=i + 1)
-
-                    team_header = ctk.CTkLabel(
-                        master=row, text=team.info.name, width=100
-                    )
-                    team_header.grid(column=1, row=i + 1)
-
-                    win_header = ctk.CTkLabel(master=row, text=team.wins, width=75)
-                    win_header.grid(column=2, row=i + 1)
-
-                    loss_header = ctk.CTkLabel(master=row, text=team.losses, width=75)
-                    loss_header.grid(column=3, row=i + 1)
-        else:
-            generate_bracket(event_diagram_frame, event, ui)
+    if filter == "Bracket":
+        generate_bracket(event_diagram_frame, ui, event)
+    elif filter == "Group":
+        generate_group(event_diagram_frame, ui, event)
 
 
-def generate_bracket(event_diagram_frame, event, ui):
+def generate_bracket(event_diagram_frame, ui, event):
     start_range = 1 if event.type == "qual" else 2
 
     matches_foreach_round = {
@@ -202,9 +182,29 @@ def generate_bracket(event_diagram_frame, event, ui):
                 if match_idx > len(matches_in_round) - 1:
                     continue
 
+                team_one_spaces = 0
+                team_two_spaces = 0
+
                 if type(matches_in_round[match_idx]) != int:
                     team_one_text = matches_in_round[match_idx].team_one.info.name
                     team_two_text = matches_in_round[match_idx].team_two.info.name
+
+                    team_one_spaces = 20 - len(team_one_text)
+                    team_two_spaces = 20 - len(team_two_text)
+
+                    team_one_scores = 0
+                    team_two_scores = 0
+
+                    if len(matches_in_round[match_idx].scores) != 0:
+                        team_one_scores = ""
+                        team_two_scores = ""
+
+                        for score in matches_in_round[match_idx].scores:
+                            team_one_scores = f"{team_one_scores}{score[0]}     "
+                            team_two_scores = f"{team_two_scores}{score[1]}      "
+
+                    team_one_text = f"{team_one_text}{' '*team_one_spaces}{team_one_scores}"
+                    team_two_text = f"{team_two_text}{' '*team_two_spaces}{team_two_scores}"
                 else:
                     team_one_text = "TBD"
                     team_two_text = "TBD"
@@ -234,3 +234,60 @@ def generate_bracket(event_diagram_frame, event, ui):
                             match_idx
                         ].team_two: create_team_info_page(x, ui, copy),
                     )
+
+
+def generate_group(event_diagram_frame, ui, event):
+    if event.groups is None:
+        total_groups = int((len(event.teams) +  len(event.related_events)) / 4)
+
+        groups = [[] for i in range(total_groups)]
+
+        for i in range(len(event.teams)):
+            groups[i % 4].append(event.teams[i])
+    else:
+        groups = event.groups
+
+    for idx, group in enumerate(groups):
+        group_header = ctk.CTkLabel(
+            master=event_diagram_frame,
+            text=f"Group {idx+1}",
+            width=300,
+            height=50,
+        )
+        group_header.grid(column=idx, row=0)
+
+        group_frame = ctk.CTkFrame(master=event_diagram_frame, width=300, height=590)
+        group_frame.grid(column=idx, row=1)
+        group_frame.grid_propagate(False)
+
+        # group header row
+        row = ctk.CTkFrame(master=group_frame, width=290, height=50)
+        row.grid(column=0, row=0, padx=5)
+
+        position_header = ctk.CTkLabel(master=row, text="Position", width=40)
+        position_header.grid(column=0, row=0)
+
+        team_header = ctk.CTkLabel(master=row, text="Team", width=100)
+        team_header.grid(column=1, row=0)
+
+        win_header = ctk.CTkLabel(master=row, text="Wins", width=75)
+        win_header.grid(column=2, row=0)
+
+        loss_header = ctk.CTkLabel(master=row, text="Losses", width=75)
+        loss_header.grid(column=3, row=0)
+
+        for i, team in enumerate(group):
+            row = ctk.CTkFrame(master=group_frame, width=290, height=50)
+            row.grid(column=0, row=i + 1, padx=5)
+
+            position_header = ctk.CTkLabel(master=row, text=i + 1, width=40)
+            position_header.grid(column=0, row=i + 1)
+
+            team_header = ctk.CTkLabel(master=row, text=team.info.name, width=100)
+            team_header.grid(column=1, row=i + 1)
+
+            win_header = ctk.CTkLabel(master=row, text=team.wins, width=75)
+            win_header.grid(column=2, row=i + 1)
+
+            loss_header = ctk.CTkLabel(master=row, text=team.losses, width=75)
+            loss_header.grid(column=3, row=i + 1)

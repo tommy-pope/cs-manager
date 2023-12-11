@@ -251,6 +251,10 @@ class GameDB:
         # if tier one event, create qualifier
         if event_rep > 85:
             invited_teams = self.teams[:12]
+            for team in invited_teams:
+                team.wins = 0
+                team.losses = 0
+
             event = Event(
                 event_id,
                 event_name,
@@ -260,7 +264,9 @@ class GameDB:
                 type,
                 invited_teams,
                 "WORLD",
+                [],
             )
+            event.groups = None
             self.events.append(event)
 
             self.generate_event(
@@ -317,6 +323,7 @@ class GameDB:
             )
             event.generate_matches(self)
             self.events.append(event)
+            parent_event.related_events.append(self)
 
     def advance(self, ui) -> None:
         self.check_for_matches()

@@ -85,6 +85,7 @@ def create_events_page(ui, filter):
             row, text=event_name, width=250, anchor="w", font=("Arial", 15)
         )
         name_widget.grid(row=0, column=1)
+
         name_widget.bind(
             "<Button-1>", lambda x, copy=event: create_event_info_page(x, ui, copy)
         )
