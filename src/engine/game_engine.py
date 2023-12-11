@@ -657,7 +657,7 @@ class GameEngine:
                             "multikills"
                         ] += 1
 
-                    if team_two_players_alive == 4:
+                    if team_two_players_alive == 4 and team_one_players_alive == 5:
                         self.game.game_stats.team_one_stats[player_one.info.player_id][
                             "first_bloods"
                         ] += 1
@@ -697,7 +697,7 @@ class GameEngine:
                             "multikills"
                         ] += 1
 
-                    if team_one_players_alive == 4:
+                    if team_one_players_alive == 4 and team_two_players_alive == 5:
                         self.game.game_stats.team_two_stats[player_two.info.player_id][
                             "first_bloods"
                         ] += 1
