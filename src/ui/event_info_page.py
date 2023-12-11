@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from .team_info_page import create_team_info_page
+from .match_info_page import create_match_info_page
 
 
 def create_event_info_page(x, ui, event, filter=None):
@@ -172,7 +173,6 @@ def generate_bracket(event_diagram_frame, ui, event):
 
         for i in range(9):
             match_frame = ctk.CTkFrame(master=round_frame, height=70)
-
             match_frame.grid(column=0, row=i)
             match_frame.grid_propagate(False)
 
@@ -186,6 +186,7 @@ def generate_bracket(event_diagram_frame, ui, event):
                 team_two_spaces = 0
 
                 if type(matches_in_round[match_idx]) != int:
+                    match_frame.bind("<Button-1>", lambda x, copy=matches_in_round[match_idx]: create_match_info_page(x, ui, copy, 0))
                     team_one_text = matches_in_round[match_idx].team_one.info.name
                     team_two_text = matches_in_round[match_idx].team_two.info.name
 
@@ -215,12 +216,7 @@ def generate_bracket(event_diagram_frame, ui, event):
                 team_one_label.grid(row=0, column=0, pady=2.5)
 
                 if team_one_text != "TBD":
-                    team_one_label.bind(
-                        "<Button-1>",
-                        lambda x, copy=matches_in_round[
-                            match_idx
-                        ].team_one: create_team_info_page(x, ui, copy),
-                    )
+                    team_one_label.bind("<Button-1>", lambda x, copy=matches_in_round[match_idx]: create_match_info_page(x, ui, copy, 0))
 
                 team_two_label = ctk.CTkLabel(
                     master=match_frame, text=team_two_text, height=30
@@ -228,13 +224,7 @@ def generate_bracket(event_diagram_frame, ui, event):
                 team_two_label.grid(row=1, column=0, pady=2.5)
 
                 if team_two_text != "TBD":
-                    team_two_label.bind(
-                        "<Button-1>",
-                        lambda x, copy=matches_in_round[
-                            match_idx
-                        ].team_two: create_team_info_page(x, ui, copy),
-                    )
-
+                    team_two_label.bind("<Button-1>", lambda x, copy=matches_in_round[match_idx]: create_match_info_page(x, ui, copy, 0))
 
 def generate_group(event_diagram_frame, ui, event):
     if event.groups is None:
