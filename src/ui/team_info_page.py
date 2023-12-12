@@ -158,3 +158,47 @@ def create_team_info_page(x, ui, team):
             master=row_frame, width=100, text=round(player.attributes.consistency)
         )
         player_consistency.grid(row=0, column=9)
+
+    # recent events header
+    team_events_header = ctk.CTkLabel(master=root_frame, text="Recent Events:", width=600, font=("Arial", 25))
+    team_events_header.grid(row=3, column=0, pady=(10,0))
+
+    # team recent events placements
+    team_info_box = ctk.CTkFrame(master=root_frame, width=600)
+    team_info_box.grid(row=4, column=0)
+    team_info_box.grid_propagate(False)
+
+    row = ctk.CTkFrame(master=team_info_box, width=600)
+    row.grid(row=0, column=0)
+
+    date_header = ctk.CTkLabel(master=row, text="Date:", width=200)
+    date_header.grid(row=0, column=0)
+
+    event_header = ctk.CTkLabel(master=row, text="Event:", width=250)
+    event_header.grid(row=0, column=1)
+
+    placement_header = ctk.CTkLabel(master=row, text="Placement:", width=150)
+    placement_header.grid(row=0, column=2)
+
+    all_events = team.events + team.past_events
+    events_length = len(all_events) if len(all_events) < 10 else 10
+
+    for i in range(events_length):
+        event = all_events[i]
+        row = ctk.CTkFrame(master=team_info_box, width=590)
+        row.grid(row=i+1, column=0, pady=(5,0), padx=(5,5))
+
+        date = ctk.CTkLabel(master=row, text=f"{event.start_date[0]}/{event.start_date[1]}/{event.start_date[2]}", width=200)
+        date.grid(row=0, column=0)
+
+        event_header = ctk.CTkLabel(master=row, text=event.name, width=250)
+        event_header.grid(row=0, column=1)
+
+        placement_header = ctk.CTkLabel(master=row, text="placeholder", width=140)
+        placement_header.grid(row=0, column=2)
+
+
+
+
+
+

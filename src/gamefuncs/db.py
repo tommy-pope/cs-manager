@@ -266,6 +266,11 @@ class GameDB:
                 "WORLD",
                 [],
             )
+
+            # store event on team
+            for team in event.teams:
+                team.events.append(event)
+
             event.groups = None
             self.events.append(event)
 
@@ -321,6 +326,11 @@ class GameDB:
                 continent,
                 [parent_event],
             )
+
+            # store event on team
+            for team in event.teams:
+                team.events.append(event)
+
             event.generate_matches(self)
             self.events.append(event)
             parent_event.related_events.append(self)

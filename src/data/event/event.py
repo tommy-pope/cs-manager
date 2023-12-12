@@ -84,6 +84,10 @@ class Event:
                     self.placements[1].losses = 0
                     e.placements = {i: None for i in range(1, len(e.active_teams))}
 
+                    self.placements[1].events.remove(self)
+                    self.placements[1].past_events.append(self)
+                    self.placements[1].events.append(e)
+
                 if e.id == self.id:
                     db.events.remove(e)
 
