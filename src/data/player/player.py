@@ -20,6 +20,10 @@ class Player:
         attribute_deltas = []
 
         for number in output:
+            if number == 1 or number == .3:
+                if self.attributes.overall >= self.attributes.potential:
+                    number = 0
+
             number2 = 0
 
             if number == 1:
@@ -34,16 +38,23 @@ class Player:
         for idx in range(len(attribute_deltas)):
             if idx == 0:
                 self.attributes.rifle = round(self.attributes.rifle + attribute_deltas[idx], 2)
+                if self.attributes.rifle > 100: self.attributes.rifle = 100
+
             elif idx == 1:
                 self.attributes.pistol = round(self.attributes.pistol + attribute_deltas[idx], 2)
+                if self.attributes.pistol > 100: self.attributes.pistol = 100
             elif idx == 2:
                 self.attributes.awp = round(self.attributes.awp + attribute_deltas[idx], 2)
+                if self.attributes.awp > 100: self.attributes.awp = 100
             elif idx == 3:
                 self.attributes.positioning = round(self.attributes.positioning + attribute_deltas[idx], 2)
+                if self.attributes.positioning > 100: self.attributes.positioning = 100
             elif idx == 4:
                 self.attributes.clutch = round(self.attributes.clutch + attribute_deltas[idx], 2)
+                if self.attributes.clutch > 100: self.attributes.clutch = 100
             elif idx == 5:
                 self.attributes.consistency = round(self.attributes.consistency + attribute_deltas[idx], 2)
+                if self.attributes.consistency > 100: self.attributes.consistency = 100
 
         self.attributes.overall = round(((self.attributes.rifle + self.attributes.pistol + self.attributes.awp + self.attributes.positioning + self.attributes.clutch + self.attributes.consistency) / 6), 2)
 

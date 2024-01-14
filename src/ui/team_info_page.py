@@ -185,6 +185,11 @@ def create_team_info_page(x, ui, team):
 
     for i in range(events_length):
         event = all_events[i]
+
+        placement_text = "placeholder"
+        for placement in event.placements:
+            if event.placements[placement] == team: placement_text = placement
+
         row = ctk.CTkFrame(master=team_info_box, width=590)
         row.grid(row=i+1, column=0, pady=(5,0), padx=(5,5))
 
@@ -194,7 +199,7 @@ def create_team_info_page(x, ui, team):
         event_header = ctk.CTkLabel(master=row, text=event.name, width=250)
         event_header.grid(row=0, column=1)
 
-        placement_header = ctk.CTkLabel(master=row, text="placeholder", width=140)
+        placement_header = ctk.CTkLabel(master=row, text=placement_text, width=140)
         placement_header.grid(row=0, column=2)
 
 

@@ -34,7 +34,7 @@ class UI:
         advance_week_button.grid(row=1, column=0, pady=5, padx=10)
 
         advance_month_button = ctk.CTkButton(
-            master=self.advance_button, text="Advance Month", command=lambda: self.db.advance(self, 30)
+            master=self.advance_button, text="Advance Month", command=lambda: self.db.advance(self, 31)
         )
         advance_month_button.grid(row=2, column=0, pady=5, padx=10)
 

@@ -20,13 +20,13 @@ def find_closest_square(number: int) -> int:
 
 
 def add_to_date(date: list, days: int = 0, months: int = 0, years: int = 0) -> list:
-    new_day = date[1] + days
-    new_day = 1 if new_day % 31 == 0 else new_day % 31
-    carried_months = (date[1] + days) // 31
+    total_days = date[1] + days
+    new_day = 1 if total_days % 32 == 0 else total_days % 32
+    carried_months = (date[1] + days) // 32
 
-    new_month = date[0] + months + carried_months
-    new_month = 1 if new_month % 12 == 0 else new_month % 12
-    carried_years = (date[0] + months + carried_months) // 12
+    total_months = date[0] + months + carried_months
+    new_month = 1 if total_months % 13 == 0 else total_months % 13
+    carried_years = (date[0] + months + carried_months) // 13
 
     new_year = date[2] + years + carried_years
 

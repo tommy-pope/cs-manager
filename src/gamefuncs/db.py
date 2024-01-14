@@ -227,8 +227,6 @@ class GameDB:
     def generate_events(self):
         # generate tier one event
         if self.date[0] % 2 != 0 and self.date[1] == 1:
-            print(self.date)
-
             self.generate_event(
                 "Tier One Event", 90, add_to_date(self.date, months=1), "main"
             )
@@ -359,7 +357,7 @@ class GameDB:
         # self.save_game()
 
     def update_players(self) -> None:
-        if self.date[1] == 30:
+        if self.date[1] == 31:
             for player in self.players:
                 player.decide_retirement()
                 player.monthly_progression_or_regression()
