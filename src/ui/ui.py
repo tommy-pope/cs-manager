@@ -9,6 +9,8 @@ class UI:
         self.root = None
         self.db = db
 
+        self.advance_button = None
+
     def create_application(self) -> ctk.CTk:
         ctk.set_appearance_mode("dark")
 
@@ -18,6 +20,23 @@ class UI:
 
         self.create_sidenavbar()
         self.create_mainpage()
+
+
+    def advance_button_dropdown(self):
+        advance_day_button = ctk.CTkButton(
+            master=self.advance_button, text="Advance Day", command=lambda: self.db.advance(self, 1)
+        )
+        advance_day_button.grid(row=0, column=0, pady=5, padx=10)
+
+        advance_week_button = ctk.CTkButton(
+            master=self.advance_button, text="Advance Week", command=lambda: self.db.advance(self, 7)
+        )
+        advance_week_button.grid(row=1, column=0, pady=5, padx=10)
+
+        advance_month_button = ctk.CTkButton(
+            master=self.advance_button, text="Advance Month", command=lambda: self.db.advance(self, 30)
+        )
+        advance_month_button.grid(row=2, column=0, pady=5, padx=10)
 
     def create_sidenavbar(self):
         frame = ctk.CTkFrame(self.root, bg_color="gray", width=1000, height=1080)
@@ -31,9 +50,11 @@ class UI:
         date_label.grid(row=0, column=0, pady=10, padx=10)
 
         advance_button = ctk.CTkButton(
-            master=frame, text="Advance", command=lambda: self.db.advance(self)
+            master=frame, text="Advance", command=lambda: self.advance_button_dropdown()
         )
         advance_button.grid(row=1, column=0, pady=10, padx=10)
+
+        self.advance_button = advance_button
 
         ranking_button = ctk.CTkButton(
             master=frame, text="Rankings", command=lambda: create_main_rankings(self)

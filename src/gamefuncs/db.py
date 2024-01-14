@@ -100,7 +100,7 @@ class GameDB:
             num_teams = teams_per_cont[continent]
 
             cont_rep = self.continents[continent].rep - 10
-            biased_rep = cont_rep / 8
+            biased_rep = cont_rep / 12
 
             cont_team_reps = [
                 random.gauss(cont_rep, biased_rep) for _ in range(num_teams)
@@ -182,7 +182,7 @@ class GameDB:
 
     def generate_player(self, teamrep: float, nation: Nation, is_awper: bool) -> Player:
         pid = 0 if len(self.players) == 0 else self.players[-1].info.player_id + 1
-        age = round(max(16, min(35, random.gauss(23, 23 / 8))))
+        age = round(max(16, min(35, random.gauss(23, 23 / 4))))
 
         player_info = PlayerInformation(pid, f"test_{pid}", age, nation.sname)
 
@@ -201,7 +201,7 @@ class GameDB:
         consistency = round(
             max(0, min(100, random.gauss(consistency_mean, consistency_mean / 8))), 2
         )
-        overall = round((rifle + pistol + awp + positioning + clutch + consistency) / 6)
+        overall = round(((rifle + pistol + awp + positioning + clutch + consistency) / 6), 2)
 
         if age > 30:
             potential = overall
@@ -227,6 +227,8 @@ class GameDB:
     def generate_events(self):
         # generate tier one event
         if self.date[0] % 2 != 0 and self.date[1] == 1:
+            print(self.date)
+
             self.generate_event(
                 "Tier One Event", 90, add_to_date(self.date, months=1), "main"
             )
@@ -335,19 +337,33 @@ class GameDB:
             self.events.append(event)
             parent_event.related_events.append(self)
 
-    def advance(self, ui) -> None:
-        self.check_for_matches()
-        self.generate_event_rounds()
+    def advance(self, ui, days) -> None:
+        day = 0
 
-        while self.games_generated:
+        while day < days:
+            self.update_players()
+
             self.check_for_matches()
             self.generate_event_rounds()
 
-        self.generate_events()
-        self.date = add_to_date(self.date, days=1)
-        ui.update_date()
+            while self.games_generated:
+                self.check_for_matches()
+                self.generate_event_rounds()
+
+            self.generate_events()
+            self.date = add_to_date(self.date, days=1)
+            ui.update_date()
+
+            day += 1
 
         # self.save_game()
+
+    def update_players(self) -> None:
+        if self.date[1] == 30:
+            for player in self.players:
+                player.decide_retirement()
+                player.monthly_progression_or_regression()
+
 
     def check_for_matches(self) -> None:
         i = 0
