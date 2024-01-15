@@ -50,6 +50,12 @@ class Event:
             if t.info.id == team.info.id:
                 self.placements[len(self.active_teams)] = team
                 self.active_teams.remove(t)
+                t.past_events.insert(0, self)
+
+                for e in t.events:
+                    if e.id == self.id:
+                        t.events.remove(e)
+
                 break
 
     def generate_matches(self, db) -> None:
@@ -69,8 +75,14 @@ class Event:
         # winner
         if len(self.active_teams) == 1:
             self.placements[1] = self.active_teams[0]
+            self.active_teams[0].past_events.insert(0, self)
+            
+            for e in self.active_teams[0].events:
+                if e.id == self.id:
+                    self.active_teams[0].events.remove(e)
+                    break
 
-            db.past_events.append(self)
+            db.past_events.insert(0, self)
 
             for e in db.events:
                 # send winner of qual to main event
@@ -84,7 +96,6 @@ class Event:
                     self.placements[1].losses = 0
                     e.placements = {i: None for i in range(1, len(e.active_teams))}
 
-                    self.placements[1].events.remove(self)
                     self.placements[1].past_events.append(self)
                     self.placements[1].events.append(e)
 
@@ -276,6 +287,9 @@ class Event:
                     match.team_one.losses += 1
                 else:
                     match.event.eliminate_team(match.team_one)
+
+
+        match.assign_elo()
 
         self.results.append(match)
         self.matches.remove(match)

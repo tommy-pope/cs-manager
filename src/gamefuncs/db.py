@@ -1,7 +1,7 @@
 from ..data.continent.continent import Continent
 from ..data.nation.nation import Nation
 
-from ..data.player.player import Player, PlayerInformation, PlayerAttributes
+from ..data.player.player import Player, PlayerInformation, PlayerAttributes, PlayerContract
 from ..data.team.team import Team, TeamInformation
 from ..data.event.event import Event
 
@@ -145,7 +145,6 @@ class GameDB:
                         nation = continent.nations[name]
                         break
 
-                # print(nation.sname)
                 player = self.generate_player(team_rep, nation, is_awper)
                 players.append(player)
                 self.players.append(player)
@@ -172,8 +171,24 @@ class GameDB:
                 players.append(player)
                 self.players.append(player)
 
+        # generate team finance
+        if team_rep >= 80:
+            max_budget = 20000000
+            min_budget = 5000000
+        elif team_rep >= 70 and team_rep < 80:
+            max_budget = 10000000
+            min_budget = 2500000
+        elif team_rep >= 60 and team_rep < 70:
+            max_budget = 5000000
+            min_budget = 1500000
+        else:
+            max_budget = 2500000
+            min_budget = 500000
+
+        budget = random.randint(min_budget, max_budget) 
+
         team_info = TeamInformation(
-            len(self.teams), team_name, team_rep, players, continent
+            len(self.teams), team_name, team_rep, players, continent, "average", budget
         )
         team = Team(team_info)
 
@@ -222,7 +237,24 @@ class GameDB:
             is_awper,
         )
 
-        return Player(player_info, player_attributes)
+        # calcuate initial contract
+        base_salary = 30000 * (1.05 ** (teamrep - 70))
+        age_scaling_factor = 1.5 - abs(25 - age) / 25
+
+        # younger and older players get worse contracts
+        if age < 20:
+            age_discount = random.uniform(5000, 10000) * age_scaling_factor
+            base_salary -= age_discount
+        elif age > 30:
+            age_discount = random.uniform(2000, 5000) * age_scaling_factor
+            base_salary -= age_discount
+
+        random_factor = random.uniform(-5000, 5000)
+        base_salary += random_factor
+        base_salary = round(base_salary)
+
+        player_contract = PlayerContract(None, base_salary, self.date, add_to_date(self.date, years=3))
+        return Player(player_info, player_attributes, player_contract)
 
     def generate_events(self):
         # generate tier one event
@@ -339,7 +371,15 @@ class GameDB:
         day = 0
 
         while day < days:
-            self.update_players()
+            # end of year
+            if self.date[0] == 12 and self.date[1] == 31:
+                for player in self.players:
+                    player.info.age += 1
+
+            if self.date[1] == 31:
+                self.update_players()
+                self.update_teams()
+                self.rank_teams()
 
             self.check_for_matches()
             self.generate_event_rounds()
@@ -357,11 +397,13 @@ class GameDB:
         # self.save_game()
 
     def update_players(self) -> None:
-        if self.date[1] == 31:
-            for player in self.players:
-                player.decide_retirement()
-                player.monthly_progression_or_regression()
+        for player in self.players:
+            player.decide_retirement()
+            player.monthly_progression_or_regression()
 
+    def update_teams(self) -> None:
+        for team in self.teams:
+            team.update_budget()
 
     def check_for_matches(self) -> None:
         i = 0

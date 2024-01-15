@@ -1,5 +1,6 @@
 from .player_attributes import PlayerAttributes
 from .player_information import PlayerInformation
+from .player_contract import PlayerContract
 
 from .player_stats_constants import progression_odds, attribute_changes
 
@@ -8,10 +9,11 @@ import random
 
 class Player:
     def __init__(
-        self, player_information: PlayerInformation, player_attributes: PlayerAttributes
+        self, player_information: PlayerInformation, player_attributes: PlayerAttributes, player_contract: PlayerContract=None
     ) -> None:
         self.info = player_information
         self.attributes = player_attributes
+        self.contract = player_contract
 
     def monthly_progression_or_regression(self):
         odds = progression_odds[self.info.age]
