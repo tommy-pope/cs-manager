@@ -14,7 +14,7 @@ def create_event_info_page(x, ui, event, filter=None):
     root_frame = root_children[1]
 
     if filter is None:
-        filter = "Group" if event.type == "main" and event.round < 2 else "Bracket"
+        filter = "Group" if event.type == "main" and event.round < 2 and event.rep >= 80 else "Bracket"
 
     # main header
     event_header = ctk.CTkLabel(
@@ -126,7 +126,12 @@ def create_event_info_page(x, ui, event, filter=None):
 
 
 def generate_bracket(event_diagram_frame, ui, event):
-    start_range = 1 if event.type == "qual" else 2
+    if event.type == "qual":
+        start_range = 1
+    elif event.type == "main" and event.rep < 80:
+        start_range = 1
+    else:
+        start_range = 2
 
     matches_foreach_round = {
         i: None for i in range(start_range, int(event.total_rounds) + 1)
@@ -143,7 +148,7 @@ def generate_bracket(event_diagram_frame, ui, event):
 
         round_frame = ctk.CTkFrame(master=event_diagram_frame, width=200, height=630)
 
-        if event.type == "main":
+        if event.type == "main" and event.rep >= 80:
             round_frame.grid(row=0, column=round - 2, rowspan=9, pady=5)
         else:
             round_frame.grid(row=0, column=round - 1, rowspan=9, pady=5)

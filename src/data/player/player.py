@@ -4,6 +4,8 @@ from .player_contract import PlayerContract
 
 from .player_stats_constants import progression_odds, attribute_changes
 
+from ...gamefuncs.utility import add_to_date
+
 import random
 
 
@@ -14,6 +16,9 @@ class Player:
         self.info = player_information
         self.attributes = player_attributes
         self.contract = player_contract
+
+        self.is_retiring = False
+        self.retire_date = None
 
     def monthly_progression_or_regression(self):
         odds = progression_odds[self.info.age]
@@ -41,26 +46,38 @@ class Player:
             if idx == 0:
                 self.attributes.rifle = round(self.attributes.rifle + attribute_deltas[idx], 2)
                 if self.attributes.rifle > 100: self.attributes.rifle = 100
-
+                if self.attributes.rifle < 1: self.attributes.rifle = 1
             elif idx == 1:
                 self.attributes.pistol = round(self.attributes.pistol + attribute_deltas[idx], 2)
                 if self.attributes.pistol > 100: self.attributes.pistol = 100
+                if self.attributes.pistol < 1: self.attributes.pistol = 1
             elif idx == 2:
                 self.attributes.awp = round(self.attributes.awp + attribute_deltas[idx], 2)
                 if self.attributes.awp > 100: self.attributes.awp = 100
+                if self.attributes.awp < 1: self.attributes.awp = 1
             elif idx == 3:
                 self.attributes.positioning = round(self.attributes.positioning + attribute_deltas[idx], 2)
                 if self.attributes.positioning > 100: self.attributes.positioning = 100
+                if self.attributes.positioning < 1: self.attributes.positioning = 1
             elif idx == 4:
                 self.attributes.clutch = round(self.attributes.clutch + attribute_deltas[idx], 2)
                 if self.attributes.clutch > 100: self.attributes.clutch = 100
+                if self.attributes.clutch < 1: self.attributes.clutch = 1
             elif idx == 5:
                 self.attributes.consistency = round(self.attributes.consistency + attribute_deltas[idx], 2)
                 if self.attributes.consistency > 100: self.attributes.consistency = 100
+                if self.attributes.consistency < 1: self.attributes.consistency = 1
 
         self.attributes.overall = round(((self.attributes.rifle + self.attributes.pistol + self.attributes.awp + self.attributes.positioning + self.attributes.clutch + self.attributes.consistency) / 6), 2)
 
-    def decide_retirement(self):
+    def decide_retirement(self, db):
+        if self.is_retiring:
+            # will need to remove from team and players db
+            if db.date == self.retire_date:
+                pass
+
+            return
+
         # nothing for now
         #age_factor = self.info.age / 36
         #age_percentage = 100
@@ -68,18 +85,16 @@ class Player:
         if self.info.age < 30:
             return
         
-        if self.info.age == 30: chance_to_retire = .001
-        elif self.info.age == 31: chance_to_retire = .002
-        elif self.info.age == 32: chance_to_retire = .005
-        elif self.info.age == 33: chance_to_retire = .008
+        if self.info.age == 30: chance_to_retire = .0001
+        elif self.info.age == 31: chance_to_retire = .0002
+        elif self.info.age == 32: chance_to_retire = .0005
+        elif self.info.age == 33: chance_to_retire = .0008
         elif self.info.age == 34: chance_to_retire = .015
         elif self.info.age == 35: chance_to_retire = .05
         else: chance_to_retire = .1
 
-        result = random.random() * 100
+        result = random.random()
 
         if result <= chance_to_retire:
-            self.retire()
-    
-    def retire(self):
-        print("WE RETIRED!!!")
+            self.is_retiring = True
+            self.retire_date = add_to_date(db.date, years=1)

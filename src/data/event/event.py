@@ -45,6 +45,8 @@ class Event:
         self.matches = []
         self.results = []
 
+        self.groups = None
+
     def eliminate_team(self, team) -> None:
         for t in self.active_teams:
             if t.info.id == team.info.id:
@@ -64,9 +66,12 @@ class Event:
 
         if self.type == "qual":
             self.generate_bracket_matches(db)
-        elif self.type == "main" and self.round == 0:
-            self.generate_group_matches(db)
-        elif self.type == "main" and self.round != 0:
+        elif self.type == "main" and self.rep >= 80:
+            if self.round == 0:
+                self.generate_group_matches(db)
+            else:
+                self.generate_bracket_matches(db)
+        elif self.type == "main" and self.rep < 80:
             self.generate_bracket_matches(db)
 
         db.games_generated = True
@@ -130,7 +135,7 @@ class Event:
             start_idx = len(self.active_teams) - teams_in_round
             end_idx = start_idx + teams_in_round
             avail_teams = self.active_teams[start_idx:end_idx]
-
+            
             matches = [
                 Match(
                     avail_teams[i],
@@ -147,7 +152,7 @@ class Event:
         else:
             num_matches = round(len(self.active_teams) / 2)
 
-            if self.type == "qual":
+            if self.type == "qual" or self.type == "main" and self.rep < 80:
                 game_date = (
                     add_to_date(self.start_date, days=1)
                     if self.round > ceil(self.total_rounds / 2)
@@ -224,7 +229,7 @@ class Event:
                 match.loser = match.team_two
 
                 # group stage
-                if self.type == "main" and self.round == 1:
+                if self.rep >= 80 and self.type == "main" and self.round == 1:
                     match.team_one.wins += 1
                     match.team_one.round_difference += team_one_score - team_two_score
                     match.team_two.round_difference += team_two_score - team_one_score
@@ -237,7 +242,7 @@ class Event:
                 match.loser = match.team_one
 
                 # group stage
-                if self.type == "main" and self.round == 1:
+                if self.rep >= 80 and self.type == "main" and self.round == 1:
                     match.team_two.wins += 1
                     match.team_one.round_difference += team_one_score - team_two_score
                     match.team_two.round_difference += team_two_score - team_one_score
@@ -268,7 +273,7 @@ class Event:
                 match.loser = match.team_two
 
                 # group stage
-                if self.type == "main" and self.round == 1:
+                if self.rep >= 80 and self.type == "main" and self.round == 1:
                     match.team_one.wins += 1
                     match.team_one.round_difference += team_one_score - team_two_score
                     match.team_two.round_difference += team_two_score - team_one_score
@@ -280,7 +285,7 @@ class Event:
                 match.loser = match.team_one
 
                 # group stage
-                if self.type == "main" and self.round == 1:
+                if self.rep >= 80 and self.type == "main" and self.round == 1:
                     match.team_two.wins += 1
                     match.team_one.round_difference += team_one_score - team_two_score
                     match.team_two.round_difference += team_two_score - team_one_score

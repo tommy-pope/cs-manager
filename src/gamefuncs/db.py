@@ -25,6 +25,7 @@ class GameDB:
         self.nations = []
         self.teams = []
         self.players = []
+        self.free_agents = []
         self.events = []
         self.matches = []
         self.results = []
@@ -39,6 +40,7 @@ class GameDB:
         self.generate_continents()
         self.generate_nations()
         self.generate_teams()
+        self.generate_free_agents()
         self.rank_teams()
 
     def save_game(self) -> None:
@@ -52,9 +54,9 @@ class GameDB:
         return pickle.load(f)
 
     def generate_continents(self) -> None:
-        eu = Continent("Europe", "EU", 95)
+        eu = Continent("Europe", "EU", 90)
         na = Continent("North America", "NA", 80)
-        sa = Continent("South America", "SA", 85)
+        sa = Continent("South America", "SA", 80)
         asia = Continent("Asia", "ASIA", 70)
 
         self.continents["EU"] = eu
@@ -90,21 +92,30 @@ class GameDB:
                 self.available_team_names.append([name, type])
 
         teams_per_cont = {
-            "EU": 20,
-            "NA": 10,
-            "SA": 10,
-            "ASIA": 5,
+            "EU": 40,
+            "NA": 22,
+            "SA": 21,
+            "ASIA": 8,
         }
 
         for continent in self.continents:
             num_teams = teams_per_cont[continent]
 
             cont_rep = self.continents[continent].rep - 10
-            biased_rep = cont_rep / 12
+
+            if continent == "EU":
+                biased_rep = cont_rep / 10
+            else:
+                biased_rep = cont_rep / 6
 
             cont_team_reps = [
                 random.gauss(cont_rep, biased_rep) for _ in range(num_teams)
             ]
+
+            for rep in cont_team_reps:
+                if rep > 90:
+                    rep -= random.randint(1,5)
+
             cont_team_reps = [round(max(30, min(100, x)), 2) for x in cont_team_reps]
 
             for team in range(num_teams):
@@ -264,10 +275,16 @@ class GameDB:
             )
 
         # generate tier two event
-        # self.generate_event("Tier Two Event", 75)
+        #self.generate_event("Tier Two Event", 75)
 
         # generate tier three events
-        # self.generate_event("Tier Three Event", 60)
+        if self.date[0] != 11 and self.date[1] == 15:
+            for continent in self.continents:
+                chance = random.random()
+
+                # 33% chance to generate lowtier event for region
+                if chance <= .33:
+                    self.generate_event("Tier Three Event", 60, add_to_date(self.date, months=1), "main", continent)
 
     def generate_event(
         self,
@@ -366,6 +383,80 @@ class GameDB:
             event.generate_matches(self)
             self.events.append(event)
             parent_event.related_events.append(self)
+        elif event_rep <= 70 and type == "main":
+            # regional event
+            if continent is not None:
+                invited_teams = [team for team in self.continents[continent].teams if abs(team.info.reputation - event_rep) <= 20]
+
+                event = Event(event_id, event_name, event_rep, start_date, add_to_date(start_date, days=1), type, invited_teams, continent, [])
+
+                for team in event.teams:
+                    team.events.append(event)
+                
+                event.generate_matches(self)
+                self.events.append(event)
+
+    def generate_free_agents(self):
+        number_of_players_to_gen = random.randint(3, 10)
+        cont_choice = random.choices(population=["EU", "NA", "SA", "ASIA"], weights=[.45, .25, .25, .05], k=number_of_players_to_gen)
+        rep_choice = random.choices(population=[60, 70, 80, 85], weights=[.6, .33, .05, .02], k=number_of_players_to_gen)
+
+        for i in range(number_of_players_to_gen):
+            player_cont = cont_choice[i]
+            player_nation = random.choices(population=list(self.continents[player_cont].nation_distribution.keys()), weights=list(self.continents[player_cont].nation_distribution.values()), k=1)[0]
+            player_nation = self.continents[player_cont].nations[player_nation]
+
+            player_rep = rep_choice[i]
+
+            # 20% chance to be awper
+            result = random.random()
+            if result <= .2:
+                is_awper = True
+            else:
+                is_awper = False
+
+            pid = 0 if len(self.players) == 0 else self.players[-1].info.player_id + 1
+            # 16 - 25
+            age = round(max(16, min(25, random.gauss(23, 23 / 4))))
+            player_info = PlayerInformation(pid, f"test_{pid}", age, player_nation.sname)
+
+            rifle_mean = (
+                pistol_mean
+            ) = awp_mean = positioning_mean = clutch_mean = consistency_mean = player_rep
+            awp_mean = awp_mean - 20 if not is_awper else awp_mean
+
+            rifle = round(max(0, min(100, random.gauss(rifle_mean, rifle_mean / 8))), 2)
+            pistol = round(max(0, min(100, random.gauss(pistol_mean, pistol_mean / 8))), 2)
+            awp = round(max(0, min(100, random.gauss(awp_mean, awp_mean / 8))), 2)
+            positioning = round(
+                max(0, min(100, random.gauss(positioning_mean, positioning_mean / 8))), 2
+            )
+            clutch = round(max(0, min(100, random.gauss(clutch_mean, clutch_mean / 8))), 2)
+            consistency = round(
+                max(0, min(100, random.gauss(consistency_mean, consistency_mean / 8))), 2
+            )
+            overall = round(((rifle + pistol + awp + positioning + clutch + consistency) / 6), 2)
+
+            potential = round(
+                max(overall, min(100, random.gauss(player_rep, player_rep / 8)))
+            )
+
+            player_attributes = PlayerAttributes(
+                rifle,
+                pistol,
+                awp,
+                positioning,
+                clutch,
+                consistency,
+                overall,
+                potential,
+                is_awper,
+            )
+
+            new_player = Player(player_info, player_attributes, None)
+
+            self.players.append(new_player)
+            self.free_agents.append(new_player)
 
     def advance(self, ui, days) -> None:
         day = 0
@@ -377,11 +468,12 @@ class GameDB:
                     player.info.age += 1
 
             if self.date[1] == 31:
+                self.generate_free_agents()
                 self.update_players()
                 self.update_teams()
                 self.rank_teams()
 
-            self.check_for_matches()
+            self.check_for_matches()  
             self.generate_event_rounds()
 
             while self.games_generated:
@@ -398,7 +490,7 @@ class GameDB:
 
     def update_players(self) -> None:
         for player in self.players:
-            player.decide_retirement()
+            player.decide_retirement(self)
             player.monthly_progression_or_regression()
 
     def update_teams(self) -> None:
@@ -416,7 +508,7 @@ class GameDB:
                 match.event.play_match(self, match)
 
                 # if group stage, sort groups
-                if match.event.round == 1 and match.event.type == "main":
+                if match.event.round == 1 and match.event.type == "main" and match.event.rep >= 80:
                     for m, group in enumerate(match.event.groups):
                         match.event.groups[m] = sorted(
                             group, key=lambda x: x.wins, reverse=True
@@ -479,6 +571,7 @@ class GameDB:
                     self.date, add_to_date(event.start_date, days=2)
                 )
                 and event.round == 1
+                and event.rep >= 80
             ):
                 for group in event.groups:
                     for i in range(len(group)):
@@ -489,6 +582,8 @@ class GameDB:
             elif event.type == "main" and check_date_equality(
                 self.date, add_to_date(event.start_date, days=1 + event.round)
             ):
+                event.generate_matches(self)
+            elif event.type == "main" and event.rep <= 60 and len(event.results) > 0 and check_date_equality(self.date, event.results[-1].date):
                 event.generate_matches(self)
 
     def rank_teams(self) -> None:
