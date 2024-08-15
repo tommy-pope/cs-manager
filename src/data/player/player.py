@@ -4,7 +4,7 @@ from .player_contract import PlayerContract
 
 from .player_stats_constants import progression_odds, attribute_changes
 
-from ...gamefuncs.utility import add_to_date
+from ...gamefuncs.utility import add_to_date, check_date_equality
 
 import random
 
@@ -73,9 +73,16 @@ class Player:
     def decide_retirement(self, db):
         if self.is_retiring:
             # will need to remove from team and players db
-            if db.date == self.retire_date:
-                pass
+            if check_date_equality(db.date, self.retire_date):
+                db.players.remove(self)
 
+                if self.contract is not None:
+                    for team in db.teams:
+                        if team.info.id == self.contract.team:
+                            team.info.players.remove(self)
+                            break
+                else:
+                    db.free_agents.remove(self)
             return
 
         # nothing for now
@@ -98,3 +105,13 @@ class Player:
         if result <= chance_to_retire:
             self.is_retiring = True
             self.retire_date = add_to_date(db.date, years=1)
+
+            if self.contract is None:
+                team_retiring_from = "free agency"
+            else:
+                for team in db.teams:
+                    if team.info.id == self.contract.team:
+                        team_retiring_from = team.info.name
+                        break
+
+            print(f"{self.info.nickname} will retire on {self.retire_date} from {team_retiring_from}")

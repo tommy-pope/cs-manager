@@ -13,6 +13,7 @@ class TeamInformation:
         self.world_rank = 0
         self.continent = continent
 
+        # finance
         self.owner_financial_type = owner_financial_type
         self.transfer_split = .2
         self.salary_split = .8
@@ -25,3 +26,7 @@ class TeamInformation:
 
         self.leftover_transfer_budget = 0
         self.leftover_salary_budget = 0
+
+        # scouting
+        self.player_overall_scouting = max(.5, self.reputation / 100)
+        self.player_potential_scouting = max(.5, self.reputation / 115)

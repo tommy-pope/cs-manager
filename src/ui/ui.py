@@ -1,5 +1,8 @@
 from .rankings_page import create_main_rankings
 from .event_list_page import create_events_page
+from .new_game_page import create_newgame_page
+
+from .ui_util import hover_button, dehover_button
 
 import customtkinter as ctk
 
@@ -21,6 +24,20 @@ class UI:
         self.create_sidenavbar()
         self.create_mainpage()
 
+    def create_main_menu(self):
+        frame = ctk.CTkFrame(self.root, width=1920, height=1080)
+        frame.grid(row=0, column=0)
+
+        new_game = ctk.CTkLabel(frame, width=200, height=50, font=("Arial", 35), text="New Game")
+        new_game.bind("<Button-1>", lambda event: create_newgame_page(event, self))
+        new_game.bind("<Enter>", lambda event: hover_button(event, new_game))
+        new_game.bind("<Leave>", lambda event: dehover_button(event, new_game))
+        new_game.grid(row=0, column=0)
+
+        load_game = ctk.CTkLabel(frame, width=200, height=50, font=("Arial", 35), text="Load Game")
+        load_game.bind("<Enter>", lambda event: hover_button(event, load_game))
+        load_game.bind("<Leave>", lambda event: dehover_button(event, load_game))
+        load_game.grid(row=1, column=0)
 
     def advance_button_dropdown(self):
         advance_day_button = ctk.CTkButton(

@@ -41,6 +41,7 @@ class GameDB:
         self.generate_nations()
         self.generate_teams()
         self.generate_free_agents()
+        self.update_teams()
         self.rank_teams()
 
     def save_game(self) -> None:
@@ -202,6 +203,9 @@ class GameDB:
             len(self.teams), team_name, team_rep, players, continent, "average", budget
         )
         team = Team(team_info)
+
+        for player in team.info.players:
+            player.contract.team = team.info.id
 
         self.teams.append(team)
         continent.teams.append(team)
@@ -386,7 +390,7 @@ class GameDB:
         elif event_rep <= 70 and type == "main":
             # regional event
             if continent is not None:
-                invited_teams = [team for team in self.continents[continent].teams if abs(team.info.reputation - event_rep) <= 20]
+                invited_teams = [team for team in self.continents[continent].teams if abs(team.info.reputation - event_rep) <= 20 or team.info.reputation < event_rep]
 
                 event = Event(event_id, event_name, event_rep, start_date, add_to_date(start_date, days=1), type, invited_teams, continent, [])
 
@@ -496,6 +500,10 @@ class GameDB:
     def update_teams(self) -> None:
         for team in self.teams:
             team.update_budget()
+
+            # need to sign players, maybe someone retired?
+            if len(team.info.players) < 5:
+                team.sign_player(self)
 
     def check_for_matches(self) -> None:
         i = 0
